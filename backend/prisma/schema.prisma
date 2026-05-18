@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── MODELS ───────────────────────────────────────────────────────────────────
+
+model User {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  email     String   @unique
+  password  String
+  phone     String?
+  avatar    String?
+  address   String?
+  role      String   @default("USER") // ADMIN | STAFF | USER
+  isOnline           Boolean   @default(false)
+  isActive           Boolean   @default(true)
+  isVerified         Boolean   @default(false)
+  verifyToken        String?
+  refreshToken       String?
+  refreshTokenExpiry DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  orders          Order[]
+  cartItems       CartItem[]
+  news            News[]
+  products        Product[]
+  
+  // Relations for Support Chat
+  supportRequests SupportRequest[] @relation("UserRequests")
+  assignedSupport SupportRequest[] @relation("StaffRequests")
+  messages        Message[]
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+
+  products  Product[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  description String?
+  price       Float
+  salePrice   Float?
+  stock       Int      @default(0)
+  thumbnail   String?
+  images      String   @default("[]") // JSON array as string (SQLite)
+  isDeleted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  categoryId  Int
+  category    Category   @relation(fields: [categoryId], references: [id])
+
+  createdById Int
+  createdBy   User       @relation(fields: [createdById], references: [id])
+
+  orderItems  OrderItem[]
+  cartItems   CartItem[]
+}
+
+model CartItem {
+  id        Int  @id @default(autoincrement())
+  quantity  Int  @default(1)
+
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+model Order {
+  id              Int      @id @default(autoincrement())
+  totalPrice      Float
+  status          String   @default("PENDING") // PENDING | CONFIRMED | SHIPPING | COMPLETED | CANCELLED
+  paymentMethod   String   @default("COD")     // COD | BANK_TRANSFER
+  shippingAddress String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  userId     Int
+  user       User        @relation(fields: [userId], references: [id])
+
+  orderItems OrderItem[]
+}
+
+model OrderItem {
+  id       Int   @id @default(autoincrement())
+  quantity Int
+  price    Float // snapshot giá tại thời điểm mua
+
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model News {
+  id        Int      @id @default(autoincrement())
+  title     String
+  slug      String   @unique
+  content   String
+  thumbnail String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdById Int
+  createdBy   User @relation(fields: [createdById], references: [id])
+}
+
+// ─── SUPPORT CHAT MODELS ──────────────────────────────────────────────────────
+
+model SupportRequest {
+  id              Int      @id @default(autoincrement())
+  status          String   @default("WAITING") // WAITING | ACTIVE | CLOSED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  userId          Int
+  user            User     @relation("UserRequests", fields: [userId], references: [id])
+
+  assignedStaffId Int?
+  assignedStaff   User?    @relation("StaffRequests", fields: [assignedStaffId], references: [id])
+
+  messages        Message[]
+}
+
+model Message {
+  id               Int      @id @default(autoincrement())
+  content          String
+  createdAt        DateTime @default(now())
+
+  supportRequestId Int
+  supportRequest   SupportRequest @relation(fields: [supportRequestId], references: [id], onDelete: Cascade)
+
+  senderId         Int
+  sender           User @relation(fields: [senderId], references: [id])
+}
