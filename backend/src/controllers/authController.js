@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { z } = require('zod');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 const prisma = require('../config/prisma');
 const { successResponse, errorResponse } = require('../utils/response');
 const { sendVerificationEmail } = require('../services/mail.service');
@@ -56,7 +56,7 @@ const register = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 12);
-    const verifyToken = uuidv4();
+    const verifyToken = crypto.randomUUID();
 
     const user = await prisma.user.create({
       data: {
@@ -108,6 +108,37 @@ const verifyEmail = async (req, res, next) => {
     });
 
     return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?verified=true`);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const resendVerification = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return errorResponse(res, 'Email is required', 400);
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return errorResponse(res, 'User not found', 404);
+    }
+
+    if (user.isVerified) {
+      return errorResponse(res, 'Account is already verified', 400);
+    }
+
+    const verifyToken = crypto.randomUUID();
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { verifyToken },
+    });
+
+    await sendVerificationEmail(user.email, verifyToken);
+
+    return successResponse(res, null, 'Verification email resent successfully');
   } catch (err) {
     next(err);
   }
@@ -263,4 +294,4 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { register, verifyEmail, login, refresh, logout, getMe, updateProfile };
+module.exports = { register, verifyEmail, resendVerification, login, refresh, logout, getMe, updateProfile };

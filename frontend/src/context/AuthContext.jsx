@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 
 const AuthContext = createContext();
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000/chat';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000/chat';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

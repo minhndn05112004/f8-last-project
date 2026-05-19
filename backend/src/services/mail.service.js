@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 const sendVerificationEmail = async (toEmail, token) => {
   const verifyLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/api/auth/verify-email?token=${token}`; // Assuming the verify route will be called directly on backend or frontend handles it and calls backend. Wait, usually the email link hits backend directly which then redirects to frontend, OR it hits frontend which calls backend. The requirements say: GET /api/auth/verify-email?token=... and then redirect frontend /login?verified=true. So the link should point to the BACKEND route.
 
-  const backendVerifyLink = `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/verify-email?token=${token}`;
+  const backendVerifyLink = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/verify-email?token=${token}`;
 
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">

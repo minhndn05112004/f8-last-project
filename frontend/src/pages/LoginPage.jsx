@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, Mail, Lock, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import { LogIn, Mail, Lock, AlertCircle, Loader2, CheckCircle2, Send } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import api from '../services/axios';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -43,6 +45,25 @@ const LoginPage = () => {
     }
   };
 
+  const handleResendVerify = async () => {
+    if (!email) {
+      toast.error('Vui lòng nhập email của bạn ở trên để gửi lại mã.');
+      return;
+    }
+    
+    setIsResending(true);
+    try {
+      await api.post('/auth/resend-verification', { email });
+      toast.success('Đã gửi lại email xác thực. Vui lòng kiểm tra hòm thư của bạn.');
+      setSuccessMsg('Đã gửi lại email xác thực. Vui lòng kiểm tra hòm thư của bạn.');
+      setError('');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gửi lại email thất bại.');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4 py-12">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
@@ -60,9 +81,27 @@ const LoginPage = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md flex items-start gap-3">
-              <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
-              <p className="text-sm text-red-700 font-medium">{error}</p>
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md flex flex-col gap-2">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
+                <p className="text-sm text-red-700 font-medium">{error}</p>
+              </div>
+              
+              {error === 'Please verify your email before logging in' && (
+                <button
+                  type="button"
+                  onClick={handleResendVerify}
+                  disabled={isResending}
+                  className="mt-2 ml-7 flex items-center justify-center gap-2 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-semibold rounded-lg transition-colors w-fit disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isResending ? (
+                    <Loader2 className="animate-spin" size={16} />
+                  ) : (
+                    <Send size={16} />
+                  )}
+                  Gửi lại mail xác thực
+                </button>
+              )}
             </div>
           )}
           
