@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -126,17 +126,27 @@ model News {
 
 // ─── SUPPORT CHAT MODELS ──────────────────────────────────────────────────────
 
+enum SupportStatus {
+  WAITING
+  ACTIVE
+  COMPLETED
+  CLOSED
+}
+
 model SupportRequest {
-  id              Int      @id @default(autoincrement())
-  status          String   @default("WAITING") // WAITING | ACTIVE | CLOSED
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id              Int           @id @default(autoincrement())
+  status          SupportStatus @default(WAITING)
+  title           String?
+  createdAt       DateTime      @default(now())
+  acceptedAt      DateTime?
+  closedAt        DateTime?
+  updatedAt       DateTime      @updatedAt
 
   userId          Int
-  user            User     @relation("UserRequests", fields: [userId], references: [id])
+  user            User          @relation("UserRequests", fields: [userId], references: [id])
 
   assignedStaffId Int?
-  assignedStaff   User?    @relation("StaffRequests", fields: [assignedStaffId], references: [id])
+  assignedStaff   User?         @relation("StaffRequests", fields: [assignedStaffId], references: [id])
 
   messages        Message[]
 }

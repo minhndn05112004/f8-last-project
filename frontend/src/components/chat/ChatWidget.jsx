@@ -13,11 +13,11 @@ const ChatWidget = () => {
   const scrollRef = useRef(null)
 
   useEffect(() => {
-    if (!socket || !user) return
+    if (!socket || !user || !connected) return
 
-    // Auto-request support state if user is authenticated
+    // Auto-request support state if user is authenticated (only check, do not create)
     if (user.role === 'USER') {
-      socket.emit('request_support', { userId: user.id })
+      socket.emit('request_support', { userId: user.id, create: false })
     }
 
     socket.on('support_request_status', (data) => {
@@ -44,7 +44,7 @@ const ChatWidget = () => {
       socket.off('receive_message')
       socket.off('support_request_closed')
     }
-  }, [socket, user])
+  }, [socket, user, connected])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -54,8 +54,10 @@ const ChatWidget = () => {
 
   const handleRequestSupport = () => {
     if (!user) {
-      // Redirect to login or show guest message
       return alert('Vui lòng đăng nhập để yêu cầu hỗ trợ.')
+    }
+    if (!socket || !connected) {
+      return alert('Đang kết nối đến máy chủ hỗ trợ. Vui lòng đợi trong giây lát!')
     }
     setLoading(true)
     socket.emit('request_support', { userId: user.id })
@@ -65,6 +67,9 @@ const ChatWidget = () => {
   const handleSendMessage = (e) => {
     e.preventDefault()
     if (!inputText.trim() || !request || request.status !== 'ACTIVE') return
+    if (!socket || !connected) {
+      return alert('Mất kết nối với máy chủ. Không thể gửi tin nhắn lúc này!')
+    }
 
     socket.emit('send_message', {
       requestId: request.id,

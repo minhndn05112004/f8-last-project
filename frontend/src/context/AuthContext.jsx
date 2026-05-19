@@ -44,6 +44,8 @@ export const AuthProvider = ({ children }) => {
     }
   }, [fetchProfile]);
 
+  const [connected, setConnected] = useState(false);
+
   useEffect(() => {
     if (user && !socket) {
       const newSocket = io(SOCKET_URL, {
@@ -51,15 +53,24 @@ export const AuthProvider = ({ children }) => {
       });
 
       newSocket.on('connect', () => {
+        setConnected(true);
         newSocket.emit('authenticate', { userId: user.id, role: user.role });
+      });
+
+      newSocket.on('disconnect', () => {
+        setConnected(false);
       });
 
       setSocket(newSocket);
 
-      return () => newSocket.close();
+      return () => {
+        newSocket.close();
+        setConnected(false);
+      };
     } else if (!user && socket) {
       socket.close();
       setSocket(null);
+      setConnected(false);
     }
   }, [user]);
 
@@ -98,7 +109,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, socket }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, socket, connected }}>
       {children}
     </AuthContext.Provider>
   );

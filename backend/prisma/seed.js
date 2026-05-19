@@ -32,6 +32,7 @@ async function main() {
       phone: '0901234567',
       address: '123 Đường Lê Lợi, Q.1, TP.HCM',
       role: 'ADMIN',
+      isVerified: true,
     },
   });
 
@@ -43,6 +44,7 @@ async function main() {
       phone: '0912345678',
       address: '456 Đường Nguyễn Huệ, Q.1, TP.HCM',
       role: 'STAFF',
+      isVerified: true,
     },
   });
 
@@ -54,6 +56,7 @@ async function main() {
       phone: '0923456789',
       address: '789 Đường Trần Hưng Đạo, Q.5, TP.HCM',
       role: 'STAFF',
+      isVerified: true,
     },
   });
 
@@ -65,6 +68,7 @@ async function main() {
       phone: '0934567890',
       address: '100 Đường Đinh Tiên Hoàng, Q.BT, TP.HCM',
       role: 'USER',
+      isVerified: true,
     },
   });
 

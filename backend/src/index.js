@@ -22,6 +22,7 @@ const io = new Server(server, {
 });
 
 // Setup chat namespace
+app.set('io', io);
 setupChatSocket(io);
 
 // ─── Start Server ─────────────────────────────────────────────────────────────

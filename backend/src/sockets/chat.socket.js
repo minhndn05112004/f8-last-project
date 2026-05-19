@@ -34,8 +34,8 @@ const setupChatSocket = (io) => {
     });
 
     // ── USER: Request Support ────────────────────────────────────────────────
-    socket.on('request_support', async ({ userId }) => {
-      console.log(`🙋 Support requested by user: ${userId}`);
+    socket.on('request_support', async ({ userId, create = true }) => {
+      console.log(`🙋 Support requested by user: ${userId} (create: ${create})`);
       try {
         const uid = parseInt(userId);
         
@@ -55,6 +55,11 @@ const setupChatSocket = (io) => {
         });
 
         if (!request) {
+          if (!create) {
+            socket.emit('support_request_status', null);
+            return;
+          }
+
           console.log(`🆕 Creating new support request for user: ${uid}`);
           request = await prisma.supportRequest.create({
             data: { userId: uid, status: 'WAITING' },
@@ -157,9 +162,13 @@ const setupChatSocket = (io) => {
         const rid = parseInt(requestId);
         await prisma.supportRequest.update({
           where: { id: rid },
-          data: { status: 'CLOSED' }
+          data: { 
+            status: 'CLOSED',
+            closedAt: new Date()
+          }
         });
-        chatNamespace.to(`support_${rid}`).emit('support_request_closed', { requestId: rid });
+        chatNamespace.to(`support_${rid}`).emit('support_request_closed', { requestId: rid, status: 'CLOSED' });
+        chatNamespace.to('staff_room').emit('support_request_status_changed', { requestId: rid, status: 'CLOSED' });
         console.log(`🔒 Request ${rid} CLOSED`);
       } catch (err) {
         console.error('close_support_request error:', err);
