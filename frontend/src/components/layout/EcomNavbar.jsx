@@ -49,7 +49,7 @@ const EcomNavbar = () => {
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 no-underline">
-          <div className="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center text-white font-bold text-xl">A</div>
+          <img src="https://cdn-icons-png.flaticon.com/512/6903/6903187.png" alt="logo" className="w-10 h-10 object-cover" />
           <span className={`text-xl font-bold tracking-tight ${isScrolled ? 'text-slate-900' : 'text-white'}`}>
             Anthony <span className="text-red-600">Shop</span>
           </span>
@@ -61,11 +61,10 @@ const EcomNavbar = () => {
             <Link
               key={link.path}
               to={link.path}
-              className={`font-medium no-underline transition-colors ${
-                location.pathname === link.path 
-                  ? 'text-red-600' 
-                  : isScrolled ? 'text-slate-600 hover:text-red-600' : 'text-white/80 hover:text-white'
-              }`}
+              className={`font-medium no-underline transition-colors ${location.pathname === link.path
+                ? 'text-red-600'
+                : isScrolled ? 'text-slate-600 hover:text-red-600' : 'text-white/80 hover:text-white'
+                }`}
             >
               {link.name}
             </Link>
@@ -74,11 +73,11 @@ const EcomNavbar = () => {
 
         {/* Icons */}
         <div className="flex items-center gap-5">
-          
+
           {/* User Account Dropdown */}
           <div className="relative" ref={dropdownRef}>
             {user ? (
-              <button 
+              <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className={`flex items-center gap-2 p-2 rounded-full transition-colors ${isScrolled ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'}`}
               >
@@ -92,7 +91,7 @@ const EcomNavbar = () => {
                 <span className="hidden sm:block text-sm font-medium">{user.fullName.split(' ')[0]}</span>
               </button>
             ) : (
-              <Link 
+              <Link
                 to="/login"
                 className={`p-2 rounded-full transition-colors ${isScrolled ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'}`}
               >
@@ -109,20 +108,20 @@ const EcomNavbar = () => {
                   <p className="text-sm font-medium text-slate-900 truncate">{user.fullName}</p>
                   <p className="text-xs text-slate-500 truncate">{user.email}</p>
                 </div>
-                
+
                 {user.role === 'ADMIN' && (
-                  <Link 
-                    to="/admin/dashboard" 
+                  <Link
+                    to="/admin/dashboard"
                     className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
                     onClick={() => setIsDropdownOpen(false)}
                   >
                     Admin Dashboard
                   </Link>
                 )}
-                
+
                 {user.role === 'STAFF' && (
-                  <Link 
-                    to="/staff/dashboard" 
+                  <Link
+                    to="/staff/dashboard"
                     className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
                     onClick={() => setIsDropdownOpen(false)}
                   >
@@ -130,25 +129,25 @@ const EcomNavbar = () => {
                   </Link>
                 )}
 
-                <Link 
-                  to="/account" 
+                <Link
+                  to="/account"
                   className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   Chi tiết tài khoản
                 </Link>
-                
-                <Link 
-                  to="/account/orders" 
+
+                <Link
+                  to="/account/orders"
                   className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   Đơn hàng của tôi
                 </Link>
-                
+
                 <div className="border-t border-slate-100 mt-1"></div>
-                
-                <button 
+
+                <button
                   onClick={handleLogout}
                   className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors"
                 >
@@ -164,7 +163,7 @@ const EcomNavbar = () => {
             </svg>
             <span className="absolute top-0 right-0 w-4 h-4 bg-red-600 text-white text-[10px] flex items-center justify-center rounded-full font-bold">0</span>
           </Link>
-          
+
           {/* Mobile Menu Toggle (Simplified) */}
           <button className={`md:hidden p-2 ${isScrolled ? 'text-slate-700' : 'text-white'}`}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">

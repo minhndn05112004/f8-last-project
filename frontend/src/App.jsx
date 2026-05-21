@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import ProductsPage from './pages/ProductsPage'
 import NewsPage from './pages/NewsPage'
+import NewsDetailPage from './pages/NewsDetailPage'
 import AboutPage from './pages/AboutPage'
 import CartPage from './pages/CartPage'
 import LoginPage from './pages/LoginPage'
@@ -29,6 +30,7 @@ function AppContent() {
           <Route path="/" element={<HomePage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/news" element={<NewsPage />} />
+          <Route path="/news/:slug" element={<NewsDetailPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />

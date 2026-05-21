@@ -7,6 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum ReactionType {
+  LIKE
+  DISLIKE
+}
+
+enum SupportStatus {
+  WAITING
+  ACTIVE
+  COMPLETED
+  CLOSED
+}
+
 // ─── MODELS ───────────────────────────────────────────────────────────────────
 
 model User {
@@ -31,7 +45,9 @@ model User {
   cartItems       CartItem[]
   news            News[]
   products        Product[]
-  
+  newsComments    NewsComment[]
+  newsReactions   NewsReaction[]
+
   // Relations for Support Chat
   supportRequests SupportRequest[] @relation("UserRequests")
   assignedSupport SupportRequest[] @relation("StaffRequests")
@@ -112,26 +128,52 @@ model OrderItem {
 }
 
 model News {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  excerpt     String?  @db.Text
+  content     String   @db.LongText
+  thumbnail   String?
+  views       Int      @default(0)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdById Int
+  createdBy   User          @relation(fields: [createdById], references: [id])
+
+  comments    NewsComment[]
+  reactions   NewsReaction[]
+}
+
+model NewsComment {
   id        Int      @id @default(autoincrement())
-  title     String
-  slug      String   @unique
-  content   String
-  thumbnail String?
+  content   String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  createdById Int
-  createdBy   User @relation(fields: [createdById], references: [id])
+  newsId    Int
+  news      News @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  userId    Int
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model NewsReaction {
+  id        Int          @id @default(autoincrement())
+  type      ReactionType
+  createdAt DateTime     @default(now())
+
+  newsId    Int
+  news      News @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  userId    Int
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([newsId, userId])
 }
 
 // ─── SUPPORT CHAT MODELS ──────────────────────────────────────────────────────
-
-enum SupportStatus {
-  WAITING
-  ACTIVE
-  COMPLETED
-  CLOSED
-}
 
 model SupportRequest {
   id              Int           @id @default(autoincrement())

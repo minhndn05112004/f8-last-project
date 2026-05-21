@@ -15,12 +15,17 @@ import {
   Check, 
   Calendar,
   MessageCircle,
-  Inbox
+  Inbox,
+  FileText
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import StaffNewsPage from './StaffNewsPage';
 
 const StaffDashboard = () => {
   const { user, socket, logout } = useAuth();
+  
+  // Modules: 'crm' | 'news'
+  const [currentModule, setCurrentModule] = useState('crm');
   
   // Tabs: 'waiting' | 'active' | 'history'
   const [activeTab, setActiveTab] = useState('active');
@@ -293,172 +298,221 @@ const StaffDashboard = () => {
               Shop <ExternalLink size={10} />
             </a>
           </div>
+          
+          {/* Module Navigation Menu */}
+          <div className="flex flex-col gap-1.5 mt-1 border-t border-slate-800/60 pt-3">
+            <button
+              onClick={() => setCurrentModule('crm')}
+              className={`w-full py-2 px-3 text-xs font-bold rounded-xl border transition-all flex items-center gap-2 ${
+                currentModule === 'crm'
+                  ? 'bg-red-800 border-red-700 text-white shadow-md'
+                  : 'bg-slate-900 border-slate-850 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <MessageCircle size={14} />
+              <span>Hỗ trợ khách hàng</span>
+            </button>
+            <button
+              onClick={() => setCurrentModule('news')}
+              className={`w-full py-2 px-3 text-xs font-bold rounded-xl border transition-all flex items-center gap-2 ${
+                currentModule === 'news'
+                  ? 'bg-red-800 border-red-700 text-white shadow-md'
+                  : 'bg-slate-900 border-slate-850 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <FileText size={14} />
+              <span>Quản lý tin tức</span>
+            </button>
+          </div>
         </div>
 
         {/* Tab Buttons (Zendesk style) */}
-        <div className="grid grid-cols-3 bg-slate-950/60 p-1 border-b border-slate-800 shrink-0 text-center">
-          <button
-            onClick={() => setActiveTab('waiting')}
-            className={`py-2 px-1 text-xs font-bold rounded-lg transition-all flex flex-col items-center gap-1 ${
-              activeTab === 'waiting' 
-                ? 'bg-red-700 text-white shadow-md' 
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <Clock size={16} />
-            <span>Đang chờ ({waitingRequests.length})</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('active')}
-            className={`py-2 px-1 text-xs font-bold rounded-lg transition-all flex flex-col items-center gap-1 ${
-              activeTab === 'active' 
-                ? 'bg-red-700 text-white shadow-md' 
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <MessageSquare size={16} />
-            <span>Hỗ trợ ({activeRequests.length})</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`py-2 px-1 text-xs font-bold rounded-lg transition-all flex flex-col items-center gap-1 ${
-              activeTab === 'history' 
-                ? 'bg-red-700 text-white shadow-md' 
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <History size={16} />
-            <span>Lịch sử ({historyRequests.length})</span>
-          </button>
-        </div>
+        {currentModule === 'crm' && (
+          <div className="grid grid-cols-3 bg-slate-950/60 p-1 border-b border-slate-800 shrink-0 text-center">
+            <button
+              onClick={() => setActiveTab('waiting')}
+              className={`py-2 px-1 text-xs font-bold rounded-lg transition-all flex flex-col items-center gap-1 ${
+                activeTab === 'waiting' 
+                  ? 'bg-red-700 text-white shadow-md' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <Clock size={16} />
+              <span>Đang chờ ({waitingRequests.length})</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('active')}
+              className={`py-2 px-1 text-xs font-bold rounded-lg transition-all flex flex-col items-center gap-1 ${
+                activeTab === 'active' 
+                  ? 'bg-red-700 text-white shadow-md' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <MessageSquare size={16} />
+              <span>Hỗ trợ ({activeRequests.length})</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`py-2 px-1 text-xs font-bold rounded-lg transition-all flex flex-col items-center gap-1 ${
+                activeTab === 'history' 
+                  ? 'bg-red-700 text-white shadow-md' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <History size={16} />
+              <span>Lịch sử ({historyRequests.length})</span>
+            </button>
+          </div>
+        )}
 
         {/* Dynamic Ticket Queue List */}
-        <div className="flex-1 overflow-y-auto divide-y divide-slate-800 bg-slate-950/20">
-          
-          {activeTab === 'waiting' && (
-            waitingRequests.length === 0 ? (
-              <div className="p-8 text-center text-slate-500 italic text-xs">
-                Không có cuộc chat nào đang chờ.
-              </div>
-            ) : (
-              waitingRequests.map(req => (
-                <div key={req.id} className="p-4 hover:bg-slate-900/50 transition cursor-pointer flex flex-col gap-2 group">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500 tracking-wider">WAITING</span>
-                    <span className="text-[10px] text-slate-500 font-medium">{new Date(req.createdAt).toLocaleTimeString()}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300">
-                      {req.user.fullName[0]}
+        {currentModule === 'crm' ? (
+          <div className="flex-1 overflow-y-auto divide-y divide-slate-800 bg-slate-950/20">
+            
+            {activeTab === 'waiting' && (
+              waitingRequests.length === 0 ? (
+                <div className="p-8 text-center text-slate-500 italic text-xs">
+                  Không có cuộc chat nào đang chờ.
+                </div>
+              ) : (
+                waitingRequests.map(req => (
+                  <div key={req.id} className="p-4 hover:bg-slate-900/50 transition cursor-pointer flex flex-col gap-2 group">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500 tracking-wider">WAITING</span>
+                      <span className="text-[10px] text-slate-500 font-medium">{new Date(req.createdAt).toLocaleTimeString()}</span>
                     </div>
-                    <div className="overflow-hidden">
-                      <p className="font-bold text-sm text-slate-100 truncate">{req.user.fullName}</p>
-                      <p className="text-[10px] text-slate-400 truncate">{req.user.email}</p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300">
+                        {req.user.fullName[0]}
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="font-bold text-sm text-slate-100 truncate">{req.user.fullName}</p>
+                        <p className="text-[10px] text-slate-400 truncate">{req.user.email}</p>
+                      </div>
                     </div>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAccept(req.id);
+                      }}
+                      disabled={submittingAction}
+                      className="w-full mt-1.5 py-2 bg-red-700 hover:bg-red-800 disabled:opacity-50 text-white text-xs font-extrabold rounded-lg transition shadow-md"
+                    >
+                      NHẬN HỖ TRỢ
+                    </button>
                   </div>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAccept(req.id);
-                    }}
-                    disabled={submittingAction}
-                    className="w-full mt-1.5 py-2 bg-red-700 hover:bg-red-800 disabled:opacity-50 text-white text-xs font-extrabold rounded-lg transition shadow-md"
+                ))
+              )
+            )}
+
+            {activeTab === 'active' && (
+              activeRequests.length === 0 ? (
+                <div className="p-8 text-center text-slate-500 italic text-xs">
+                  Bạn chưa nhận cuộc chat nào.
+                </div>
+              ) : (
+                activeRequests.map(req => (
+                  <div 
+                    key={req.id} 
+                    onClick={() => fetchMessages(req.id)}
+                    className={`p-4 hover:bg-slate-900/40 transition cursor-pointer flex flex-col gap-2 ${
+                      selectedTicket?.id === req.id ? 'bg-slate-800/80 border-l-4 border-red-600' : ''
+                    }`}
                   >
-                    NHẬN HỖ TRỢ
-                  </button>
-                </div>
-              ))
-            )
-          )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-green-500/20 text-green-400 tracking-wider">ACTIVE</span>
+                      <span className="text-[10px] text-slate-500 font-medium">{new Date(req.updatedAt).toLocaleTimeString()}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-200">
+                        {req.user.fullName[0]}
+                      </div>
+                      <div className="overflow-hidden flex-1">
+                        <p className="font-bold text-sm text-slate-100 truncate">{req.user.fullName}</p>
+                        <p className="text-xs text-slate-400 truncate">
+                          {req.messages && req.messages.length > 0 
+                            ? req.messages[req.messages.length - 1].content 
+                            : 'Đã kết nối, đang chat...'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )
+            )}
 
-          {activeTab === 'active' && (
-            activeRequests.length === 0 ? (
-              <div className="p-8 text-center text-slate-500 italic text-xs">
-                Bạn chưa nhận cuộc chat nào.
-              </div>
-            ) : (
-              activeRequests.map(req => (
-                <div 
-                  key={req.id} 
-                  onClick={() => fetchMessages(req.id)}
-                  className={`p-4 hover:bg-slate-900/40 transition cursor-pointer flex flex-col gap-2 ${
-                    selectedTicket?.id === req.id ? 'bg-slate-800/80 border-l-4 border-red-600' : ''
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-green-500/20 text-green-400 tracking-wider">ACTIVE</span>
-                    <span className="text-[10px] text-slate-500 font-medium">{new Date(req.updatedAt).toLocaleTimeString()}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-200">
-                      {req.user.fullName[0]}
-                    </div>
-                    <div className="overflow-hidden flex-1">
-                      <p className="font-bold text-sm text-slate-100 truncate">{req.user.fullName}</p>
-                      <p className="text-xs text-slate-400 truncate">
-                        {req.messages && req.messages.length > 0 
-                          ? req.messages[req.messages.length - 1].content 
-                          : 'Đã kết nối, đang chat...'}
-                      </p>
-                    </div>
-                  </div>
+            {activeTab === 'history' && (
+              historyRequests.length === 0 ? (
+                <div className="p-8 text-center text-slate-500 italic text-xs">
+                  Không có lịch sử lưu trữ.
                 </div>
-              ))
-            )
-          )}
-
-          {activeTab === 'history' && (
-            historyRequests.length === 0 ? (
-              <div className="p-8 text-center text-slate-500 italic text-xs">
-                Không có lịch sử lưu trữ.
-              </div>
-            ) : (
-              historyRequests.map(req => (
-                <div 
-                  key={req.id} 
-                  onClick={() => fetchMessages(req.id)}
-                  className={`p-4 hover:bg-slate-900/40 transition cursor-pointer flex flex-col gap-2 ${
-                    selectedTicket?.id === req.id ? 'bg-slate-800/80 border-l-4 border-red-600' : ''
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded tracking-wider ${
-                      req.status === 'COMPLETED' ? 'bg-blue-500/20 text-blue-400' : 'bg-slate-600/30 text-slate-400'
-                    }`}>
-                      {req.status}
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-medium">
-                      {new Date(req.closedAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300">
-                      {req.user.fullName[0]}
+              ) : (
+                historyRequests.map(req => (
+                  <div 
+                    key={req.id} 
+                    onClick={() => fetchMessages(req.id)}
+                    className={`p-4 hover:bg-slate-900/40 transition cursor-pointer flex flex-col gap-2 ${
+                      selectedTicket?.id === req.id ? 'bg-slate-800/80 border-l-4 border-red-600' : ''
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded tracking-wider ${
+                        req.status === 'COMPLETED' ? 'bg-blue-500/20 text-blue-400' : 'bg-slate-600/30 text-slate-400'
+                      }`}>
+                        {req.status}
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-medium">
+                        {new Date(req.closedAt).toLocaleDateString()}
+                      </span>
                     </div>
-                    <div className="overflow-hidden flex-1">
-                      <p className="font-bold text-sm text-slate-100 truncate">{req.user.fullName}</p>
-                      <p className="text-[10px] text-slate-400 truncate">Staff: {req.assignedStaff?.fullName || 'Không rõ'}</p>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300">
+                        {req.user.fullName[0]}
+                      </div>
+                      <div className="overflow-hidden flex-1">
+                        <p className="font-bold text-sm text-slate-100 truncate">{req.user.fullName}</p>
+                        <p className="text-[10px] text-slate-400 truncate">Staff: {req.assignedStaff?.fullName || 'Không rõ'}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-[9px] text-slate-500 pt-1 border-t border-slate-800/40 mt-1">
+                      <span>{req._count?.messages || 0} tin nhắn</span>
+                      <span className="italic truncate">{getSupportDuration(req.acceptedAt || req.createdAt, req.closedAt)}</span>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center justify-between text-[9px] text-slate-500 pt-1 border-t border-slate-800/40 mt-1">
-                    <span>{req._count?.messages || 0} tin nhắn</span>
-                    <span className="italic truncate">{getSupportDuration(req.acceptedAt || req.createdAt, req.closedAt)}</span>
-                  </div>
-                </div>
-              ))
-            )
-          )}
+                ))
+              )
+            )}
 
-        </div>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto divide-y divide-slate-800 bg-slate-950/20 text-slate-400 p-5 text-xs leading-relaxed border-t border-slate-800/40">
+            <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850">
+              <h4 className="font-extrabold text-slate-200 mb-2 text-[11px] uppercase tracking-wider">Tin tức & Cẩm nang</h4>
+              <p>
+                Tại đây bạn có thể soạn thảo, xuất bản và cập nhật các bài đăng chia sẻ kinh nghiệm ẩm thực, chế biến thịt nhập khẩu.
+              </p>
+            </div>
+            <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850 mt-4">
+              <h4 className="font-extrabold text-slate-200 mb-2 text-[11px] uppercase tracking-wider">Gợi ý viết bài</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Mẹo rã đông thịt đúng cách</li>
+                <li>Cách làm bít tết chuẩn Âu</li>
+                <li>Phân biệt các loại bò Wagyu</li>
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 2. Middle/Right Area: Conversational Area */}
       <div className="flex-1 flex flex-col overflow-hidden bg-[#f1f5f9]">
-        {selectedTicket ? (
+        {currentModule === 'news' ? (
+          <StaffNewsPage />
+        ) : selectedTicket ? (
           <>
             {/* Active conversation Header */}
             <div className="bg-white px-6 py-4 border-b border-slate-200 shadow-sm flex items-center justify-between shrink-0">

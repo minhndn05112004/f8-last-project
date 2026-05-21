@@ -10,6 +10,7 @@ const categoryRoutes = require('./routes/category.routes');
 const cartRoutes = require('./routes/cart.routes');
 const orderRoutes = require('./routes/order.routes');
 const newsRoutes = require('./routes/news.routes');
+const commentRoutes = require('./routes/comment.routes');
 const supportRoutes = require('./routes/support.routes');
 
 
@@ -41,6 +42,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/comments', commentRoutes);
 app.use('/api/support', supportRoutes);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
