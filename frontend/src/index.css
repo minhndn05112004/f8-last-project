@@ -1,12 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Bootstrap grid only */
 @import 'bootstrap/dist/css/bootstrap-grid.min.css';
 
 /* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Base styles */
 *, *::before, *::after {

@@ -20,11 +20,12 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import StaffNewsPage from './StaffNewsPage';
+import StaffProductPage from './StaffProductPage';
 
 const StaffDashboard = () => {
   const { user, socket, logout } = useAuth();
   
-  // Modules: 'crm' | 'news'
+  // Modules: 'crm' | 'news' | 'products'
   const [currentModule, setCurrentModule] = useState('crm');
   
   // Tabs: 'waiting' | 'active' | 'history'
@@ -313,6 +314,17 @@ const StaffDashboard = () => {
               <span>Hỗ trợ khách hàng</span>
             </button>
             <button
+              onClick={() => setCurrentModule('products')}
+              className={`w-full py-2 px-3 text-xs font-bold rounded-xl border transition-all flex items-center gap-2 ${
+                currentModule === 'products'
+                  ? 'bg-red-800 border-red-700 text-white shadow-md'
+                  : 'bg-slate-900 border-slate-850 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Inbox size={14} />
+              <span>Quản lý sản phẩm</span>
+            </button>
+            <button
               onClick={() => setCurrentModule('news')}
               className={`w-full py-2 px-3 text-xs font-bold rounded-xl border transition-all flex items-center gap-2 ${
                 currentModule === 'news'
@@ -489,21 +501,42 @@ const StaffDashboard = () => {
 
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto divide-y divide-slate-800 bg-slate-950/20 text-slate-400 p-5 text-xs leading-relaxed border-t border-slate-800/40">
-            <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850">
-              <h4 className="font-extrabold text-slate-200 mb-2 text-[11px] uppercase tracking-wider">Tin tức & Cẩm nang</h4>
-              <p>
-                Tại đây bạn có thể soạn thảo, xuất bản và cập nhật các bài đăng chia sẻ kinh nghiệm ẩm thực, chế biến thịt nhập khẩu.
-              </p>
-            </div>
-            <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850 mt-4">
-              <h4 className="font-extrabold text-slate-200 mb-2 text-[11px] uppercase tracking-wider">Gợi ý viết bài</h4>
-              <ul className="list-disc pl-4 space-y-1">
-                <li>Mẹo rã đông thịt đúng cách</li>
-                <li>Cách làm bít tết chuẩn Âu</li>
-                <li>Phân biệt các loại bò Wagyu</li>
-              </ul>
-            </div>
+          <div className="flex-1 overflow-y-auto bg-slate-950/20 text-slate-400 p-5 text-xs leading-relaxed border-t border-slate-800/40 space-y-4">
+            {currentModule === 'products' ? (
+              <>
+                <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850">
+                  <h4 className="font-extrabold text-slate-200 mb-2 text-[11px] uppercase tracking-wider">Quản lý sản phẩm</h4>
+                  <p>
+                    Xem danh sách, cập nhật thông tin sản phẩm, giá cả, và quản lý các thẻ phân loại của thịt/thực phẩm nhập khẩu.
+                  </p>
+                </div>
+                <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850">
+                  <h4 className="font-extrabold text-slate-200 mb-2 text-[11px] uppercase tracking-wider">Hướng dẫn</h4>
+                  <ul className="list-disc pl-4 space-y-1">
+                    <li>Nhập đầy đủ SKU và Slug hợp lệ</li>
+                    <li>Thêm nhãn (Tags) để tối ưu tìm kiếm</li>
+                    <li>Kiểm tra số lượng tồn kho định kỳ</li>
+                  </ul>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850">
+                  <h4 className="font-extrabold text-slate-200 mb-2 text-[11px] uppercase tracking-wider">Tin tức & Cẩm nang</h4>
+                  <p>
+                    Tại đây bạn có thể soạn thảo, xuất bản và cập nhật các bài đăng chia sẻ kinh nghiệm ẩm thực, chế biến thịt nhập khẩu.
+                  </p>
+                </div>
+                <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850">
+                  <h4 className="font-extrabold text-slate-200 mb-2 text-[11px] uppercase tracking-wider">Gợi ý viết bài</h4>
+                  <ul className="list-disc pl-4 space-y-1">
+                    <li>Mẹo rã đông thịt đúng cách</li>
+                    <li>Cách làm bít tết chuẩn Âu</li>
+                    <li>Phân biệt các loại bò Wagyu</li>
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -512,6 +545,8 @@ const StaffDashboard = () => {
       <div className="flex-1 flex flex-col overflow-hidden bg-[#f1f5f9]">
         {currentModule === 'news' ? (
           <StaffNewsPage />
+        ) : currentModule === 'products' ? (
+          <StaffProductPage />
         ) : selectedTicket ? (
           <>
             {/* Active conversation Header */}

@@ -108,51 +108,115 @@ const Introduction = () => {
   )
 }
 
-const ProductCard = ({ image, name, badge, desc }) => (
-  <motion.div
-    whileHover={{ y: -10 }}
-    className="bg-white rounded-2xl overflow-hidden premium-shadow transition-all group"
-  >
-    <div className="relative h-72 overflow-hidden">
-      <img
-        src={image}
-        alt={name}
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-      />
-      {badge && (
-        <div className="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-full">
-          {badge}
+const ProductCard = ({ product }) => {
+  const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop';
+  const image = product.thumbnail 
+    ? (product.thumbnail.startsWith('http') ? product.thumbnail : `http://localhost:5000${product.thumbnail}`)
+    : fallbackImg;
+  
+  const hasDiscount = product.salePrice && product.salePrice < product.price;
+  
+  const formatPrice = (p) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p);
+  };
+
+  return (
+    <motion.div
+      whileHover={{ y: -10 }}
+      className="bg-white rounded-2xl overflow-hidden premium-shadow transition-all group flex flex-col justify-between"
+    >
+      <div>
+        <div className="relative h-72 overflow-hidden bg-slate-100">
+          <img
+            src={image}
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            onError={(e) => { e.target.src = fallbackImg; }}
+          />
+          {product.tags && product.tags.length > 0 && (
+            <div className="absolute top-4 left-4 flex flex-wrap gap-1.5">
+              {product.tags.slice(0, 2).map((t) => (
+                <span key={t.id} className="bg-red-650 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  {t.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
-      )}
-    </div>
-    <div className="p-6 text-center">
-      <h4 className="font-bold text-lg mb-2 text-slate-900">{name}</h4>
-      {desc && <p className="text-slate-500 text-xs mb-4">{desc}</p>}
-      <button className="w-full py-3 rounded-lg border border-slate-200 font-bold text-sm hover:bg-slate-50 transition-colors">
-        XEM CHI TIẾT
-      </button>
-    </div>
-  </motion.div>
-)
+        <div className="p-6 text-center">
+          <h4 className="font-bold text-lg mb-2 text-slate-900 line-clamp-2 min-h-[56px] flex items-center justify-center">
+            {product.name}
+          </h4>
+          <p className="text-slate-500 text-xs mb-4 line-clamp-2 min-h-[32px]">
+            {product.shortDescription || 'Thịt sạch nhập khẩu chất lượng cao, tươi ngon mỗi ngày.'}
+          </p>
+          <div className="mb-4">
+            {hasDiscount ? (
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-red-600 font-extrabold text-lg">{formatPrice(product.salePrice)}</span>
+                <span className="text-slate-400 line-through text-sm">{formatPrice(product.price)}</span>
+              </div>
+            ) : (
+              <span className="text-slate-800 font-extrabold text-lg">{formatPrice(product.price)}</span>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="p-6 pt-0">
+        <Link 
+          to={`/products/${product.slug}`} 
+          className="block w-full py-3 rounded-lg border border-slate-200 font-bold text-sm text-slate-700 hover:bg-red-800 hover:text-white hover:border-red-800 text-center no-underline transition-all"
+        >
+          XEM CHI TIẾT
+        </Link>
+      </div>
+    </motion.div>
+  );
+};
 
 const FeaturedProducts = () => {
-  const products = [
-    { name: "Salami Khói", image: "https://80foods.com.vn//admin/webroot/upload/image/files/sashimi-ca-hoi(1).png", badge: "HOT" },
-    { name: "PATE BARON", image: "https://scontent.fhan14-5.fna.fbcdn.net/v/t1.6435-9/131474649_3619507944758640_42006736744143896_n.png?stp=dst-jpg_tt6&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeFnlAAwX13ZHEXCIQKVtfriikjyEVcUnL2KSPIRVxScvVY6VIhbIWEon4g7m4ui8zIFxx5GaR4WC2GY8G-Dp_8y&_nc_ohc=WZs-H1K8NM8Q7kNvwFZCghk&_nc_oc=AdpKh_QUtNaCLb6CM3oyZpyYQo8vpJIFZCh8yMNQNxwroeouVLMnobXB0sfNDrS7TiI&_nc_zt=23&_nc_ht=scontent.fhan14-5.fna&_nc_gid=wtJ4Jvi4EL7NBa2vqsXjdQ&_nc_ss=7b2a8&oh=00_Af5vtCYoWDjb0qh-i7MbXaFP7Et5Mt7s66n9muh5Ej2dmA&oe=6A318C94", badge: "NEW", desc: "Bạn Đã Thử Chưa?" },
-    { name: "Xúc Xích Cao Cấp", image: "https://hnm.1cdn.vn/2021/06/07/hanoimoi.com.vn-uploads-images-quangcao1-2021-06-07-_ducviet1.jpg", badge: "BEST SELLER" },
-  ]
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await api.get('/products', {
+          params: {
+            limit: 3,
+            sortBy: 'createdAt',
+            sortOrder: 'desc'
+          }
+        })
+        setProducts(res.data.data || [])
+      } catch (err) {
+        console.error('Failed to fetch featured products:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProducts()
+  }, [])
 
   return (
     <section className="py-24 bg-slate-50">
       <div className="container text-center">
-        <h2 className="text-4xl font-bold mb-4 text-slate-900">Khám Phá Sản Phẩm Của Chúng Tôi</h2>
+        <h2 className="text-4xl font-bold mb-4 text-slate-900">Sản Phẩm Mới Nhất</h2>
         <div className="w-20 h-1 bg-red-600 mx-auto mb-16"></div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {products.map((p, idx) => (
-            <ProductCard key={idx} {...p} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-700"></div>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-slate-500 italic mb-12">Đang cập nhật danh mục sản phẩm mới...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        )}
 
         <Link to="/products" className="inline-block bg-red-800 text-white font-bold px-10 py-4 rounded-lg hover:bg-red-900 transition-colors no-underline shadow-lg">
           XEM TẤT CẢ SẢN PHẨM

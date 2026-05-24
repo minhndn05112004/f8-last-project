@@ -42,7 +42,7 @@ model User {
   updatedAt          DateTime  @updatedAt
 
   orders          Order[]
-  cartItems       CartItem[]
+  cart            Cart?
   news            News[]
   products        Product[]
   newsComments    NewsComment[]
@@ -54,51 +54,81 @@ model User {
   messages        Message[]
 }
 
-model Category {
-  id        Int       @id @default(autoincrement())
-  name      String
-  slug      String    @unique
-  createdAt DateTime  @default(now())
+// ─── PRODUCT TAG SYSTEM ───────────────────────────────────────────────────────
 
-  products  Product[]
+model ProductTag {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  slug     String @unique
+
+  products ProductTagOnProduct[]
 }
 
-model Product {
-  id          Int      @id @default(autoincrement())
-  name        String
-  slug        String   @unique
-  description String?
-  price       Float
-  salePrice   Float?
-  stock       Int      @default(0)
-  thumbnail   String?
-  images      String   @default("[]") // JSON array as string (SQLite)
-  isDeleted   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model ProductTagOnProduct {
+  productId Int
+  tagId     Int
 
-  categoryId  Int
-  category    Category   @relation(fields: [categoryId], references: [id])
+  product Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag     ProductTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+}
+
+// ─── PRODUCT ──────────────────────────────────────────────────────────────────
+
+model Product {
+  id               Int      @id @default(autoincrement())
+  name             String
+  slug             String   @unique
+  description      String?  @db.Text
+  shortDescription String?
+  thumbnail        String?
+  images           String   @default("[]") // JSON array as string
+  price            Float
+  salePrice        Float?
+  stock            Int      @default(0)
+  sku              String?  @unique
+  isPublished      Boolean  @default(false)
+  isDeleted        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   createdById Int
-  createdBy   User       @relation(fields: [createdById], references: [id])
+  createdBy   User @relation(fields: [createdById], references: [id])
 
-  orderItems  OrderItem[]
-  cartItems   CartItem[]
+  tags       ProductTagOnProduct[]
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+}
+
+// ─── CART ─────────────────────────────────────────────────────────────────────
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items CartItem[]
 }
 
 model CartItem {
-  id        Int  @id @default(autoincrement())
-  quantity  Int  @default(1)
+  id        Int      @id @default(autoincrement())
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
 
-  userId    Int
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cartId Int
+  cart   Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
 
   productId Int
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, productId])
+  @@unique([cartId, productId])
 }
+
+// ─── ORDER ────────────────────────────────────────────────────────────────────
 
 model Order {
   id              Int      @id @default(autoincrement())
@@ -126,6 +156,8 @@ model OrderItem {
   productId Int
   product   Product @relation(fields: [productId], references: [id])
 }
+
+// ─── NEWS ─────────────────────────────────────────────────────────────────────
 
 model News {
   id          Int      @id @default(autoincrement())

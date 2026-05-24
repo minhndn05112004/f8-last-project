@@ -6,13 +6,12 @@ const path = require('path');
 // Routes
 const authRoutes = require('./routes/auth.routes');
 const productRoutes = require('./routes/product.routes');
-const categoryRoutes = require('./routes/category.routes');
+const tagRoutes = require('./routes/tag.routes');
 const cartRoutes = require('./routes/cart.routes');
 const orderRoutes = require('./routes/order.routes');
 const newsRoutes = require('./routes/news.routes');
 const commentRoutes = require('./routes/comment.routes');
 const supportRoutes = require('./routes/support.routes');
-
 
 // Middleware
 const errorHandler = require('./middlewares/errorHandler');
@@ -38,7 +37,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/categories', categoryRoutes);
+app.use('/api/tags', tagRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/news', newsRoutes);
@@ -50,16 +49,17 @@ app.use('/api/support', supportRoutes);
 app.get('/', (_req, res) => {
   res.json({
     success: true,
-    message: '🥩 Meat Shop API is running',
-    version: '1.0.0',
+    message: '🥩 Anthony Shop API is running',
+    version: '2.0.0',
     endpoints: [
       'GET  /api/auth/me',
-      'POST /api/auth/register',
       'POST /api/auth/login',
       'GET  /api/products',
-      'GET  /api/categories',
+      'GET  /api/products/slug/:slug',
+      'GET  /api/tags',
+      'POST /api/tags',
       'GET  /api/cart',
-      'POST /api/orders',
+      'POST /api/cart/add',
       'GET  /api/news',
     ],
   });
