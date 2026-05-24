@@ -21,11 +21,12 @@ import {
 import { toast } from 'react-hot-toast';
 import StaffNewsPage from './StaffNewsPage';
 import StaffProductPage from './StaffProductPage';
+import StaffOrderPage from './StaffOrderPage';
 
 const StaffDashboard = () => {
   const { user, socket, logout } = useAuth();
   
-  // Modules: 'crm' | 'news' | 'products'
+  // Modules: 'crm' | 'news' | 'products' | 'orders'
   const [currentModule, setCurrentModule] = useState('crm');
   
   // Tabs: 'waiting' | 'active' | 'history'
@@ -335,6 +336,17 @@ const StaffDashboard = () => {
               <FileText size={14} />
               <span>Quản lý tin tức</span>
             </button>
+            <button
+              onClick={() => setCurrentModule('orders')}
+              className={`w-full py-2 px-3 text-xs font-bold rounded-xl border transition-all flex items-center gap-2 ${
+                currentModule === 'orders'
+                  ? 'bg-red-800 border-red-700 text-white shadow-md'
+                  : 'bg-slate-900 border-slate-850 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Users size={14} />
+              <span>Quản lý đơn hàng</span>
+            </button>
           </div>
         </div>
 
@@ -519,6 +531,13 @@ const StaffDashboard = () => {
                   </ul>
                 </div>
               </>
+            ) : currentModule === 'orders' ? (
+              <>
+                <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850">
+                  <h4 className="font-extrabold text-slate-200 mb-2 text-[11px] uppercase tracking-wider">Quản lý Đơn Hàng</h4>
+                  <p>Xem toàn bộ đơn hàng của khách, cập nhật trạng thái thanh toán và vận chuyển để khách hàng có thể theo dõi chính xác thời gian nhận thịt.</p>
+                </div>
+              </>
             ) : (
               <>
                 <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850">
@@ -547,6 +566,8 @@ const StaffDashboard = () => {
           <StaffNewsPage />
         ) : currentModule === 'products' ? (
           <StaffProductPage />
+        ) : currentModule === 'orders' ? (
+          <StaffOrderPage />
         ) : selectedTicket ? (
           <>
             {/* Active conversation Header */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import EcomNavbar from '../components/layout/EcomNavbar';
 import EcomFooter from '../components/layout/EcomFooter';
 
@@ -73,7 +73,10 @@ const AccountPage = () => {
 
               </div>
 
-              <div className="mt-8 pt-8 border-t border-slate-100 flex justify-end">
+              <div className="mt-8 pt-8 border-t border-slate-100 flex justify-end gap-4">
+                <Link to="/my-orders" className="px-6 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg font-bold hover:bg-red-100 transition-colors">
+                  Lịch sử đơn hàng
+                </Link>
                 <button className="px-6 py-2 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors">
                   Cập nhật thông tin
                 </button>

@@ -11,6 +11,11 @@ import RegisterPage from './pages/RegisterPage'
 import StaffDashboard from './pages/staff/StaffDashboard'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AccountPage from './pages/AccountPage'
+import CheckoutPage from './pages/CheckoutPage'
+import PaymentPage from './pages/PaymentPage'
+import OrderSuccessPage from './pages/OrderSuccessPage'
+import OrderTrackingPage from './pages/OrderTrackingPage'
+import MyOrdersPage from './pages/MyOrdersPage'
 import EcomNavbar from './components/layout/EcomNavbar'
 import EcomFooter from './components/layout/EcomFooter'
 import ChatWidget from './components/chat/ChatWidget'
@@ -45,6 +50,11 @@ function AppContent() {
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/payment/:orderCode" element={<PaymentPage />} />
+              <Route path="/order-success/:orderCode" element={<OrderSuccessPage />} />
+              <Route path="/my-orders" element={<MyOrdersPage />} />
+              <Route path="/orders/:id" element={<OrderTrackingPage />} />
               <Route path="/account" element={<AccountPage />} />
             </Route>
 

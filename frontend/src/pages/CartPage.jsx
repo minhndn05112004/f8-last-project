@@ -42,7 +42,7 @@ const CartPage = () => {
   };
 
   const handleCheckout = () => {
-    toast.success('Hệ thống thanh toán đang được tích hợp! 💳');
+    navigate('/checkout');
   };
 
   if (loading && cartItems.length === 0) {

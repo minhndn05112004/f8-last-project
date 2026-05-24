@@ -12,6 +12,7 @@ const orderRoutes = require('./routes/order.routes');
 const newsRoutes = require('./routes/news.routes');
 const commentRoutes = require('./routes/comment.routes');
 const supportRoutes = require('./routes/support.routes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 // Middleware
 const errorHandler = require('./middlewares/errorHandler');
@@ -43,6 +44,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 
