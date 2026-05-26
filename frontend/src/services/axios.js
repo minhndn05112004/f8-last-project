@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const baseURL = import.meta.env.VITE_API_URL || 'https://f8-last-project.onrender.com';
 
 const api = axios.create({
   baseURL,
@@ -34,7 +34,7 @@ const processQueue = (error, token = null) => {
       prom.resolve(token);
     }
   });
-  
+
   failedQueue = [];
 };
 
@@ -46,9 +46,9 @@ api.interceptors.response.use(
 
     // Only attempt to refresh if it's a 401 and not already retried
     if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/login' && originalRequest.url !== '/auth/refresh') {
-      
+
       if (isRefreshing) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
         }).then(token => {
           originalRequest.headers['Authorization'] = 'Bearer ' + token;
@@ -60,9 +60,9 @@ api.interceptors.response.use(
 
       originalRequest._retry = true;
       isRefreshing = true;
-      
+
       const refreshToken = localStorage.getItem('refreshToken');
-      
+
       if (!refreshToken) {
         isRefreshing = false;
         // Proceed to redirect to login
@@ -71,16 +71,16 @@ api.interceptors.response.use(
 
       try {
         const { data } = await axios.post(`${baseURL}/auth/refresh`, { refreshToken });
-        
+
         const newAccessToken = data.data.accessToken;
         localStorage.setItem('accessToken', newAccessToken);
-        
+
         // Update the authorization header for future requests
         api.defaults.headers.common['Authorization'] = 'Bearer ' + newAccessToken;
         originalRequest.headers['Authorization'] = 'Bearer ' + newAccessToken;
-        
+
         processQueue(null, newAccessToken);
-        
+
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
