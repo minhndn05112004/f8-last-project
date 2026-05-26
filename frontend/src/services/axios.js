@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 const baseURL = import.meta.env.VITE_API_URL || 'https://f8-last-project.onrender.com';
 
 const api = axios.create({
-  baseURL,
+  baseURL: baseURL + '/api',
   headers: {
     'Content-Type': 'application/json',
   },
