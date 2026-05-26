@@ -22,12 +22,21 @@ const app = express();
 // ─── Core Middleware ─────────────────────────────────────────────────────────
 
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://f8-last-project.vercel.app',
-    'https://f8-last-project-git-feat-deploy-minhndn05112004-projects-b2500d33.vercel.app'
-  ],
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://f8-last-project.vercel.app',
+    ];
+    // Cho phép tất cả *.vercel.app subdomain của project
+    const vercelPreview = /^https:\/\/f8-last-project.*\.vercel\.app$/;
+
+    if (!origin || allowedOrigins.includes(origin) || vercelPreview.test(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
