@@ -72,6 +72,7 @@ model User {
   supportRequests SupportRequest[] @relation("UserRequests")
   assignedSupport SupportRequest[] @relation("StaffRequests")
   messages        Message[]
+  @@map("user")
 }
 
 // ─── PRODUCT TAG SYSTEM ───────────────────────────────────────────────────────
@@ -82,6 +83,7 @@ model ProductTag {
   slug     String @unique
 
   products ProductTagOnProduct[]
+  @@map("product_tag")
 }
 
 model ProductTagOnProduct {
@@ -92,6 +94,7 @@ model ProductTagOnProduct {
   tag     ProductTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([productId, tagId])
+  @@map("product_tag_on_product")
 }
 
 // ─── PRODUCT ──────────────────────────────────────────────────────────────────
@@ -119,6 +122,7 @@ model Product {
   tags       ProductTagOnProduct[]
   orderItems OrderItem[]
   cartItems  CartItem[]
+  @@map("product")
 }
 
 // ─── CART ─────────────────────────────────────────────────────────────────────
@@ -132,6 +136,7 @@ model Cart {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   items CartItem[]
+  @@map("cart")
 }
 
 model CartItem {
@@ -146,9 +151,10 @@ model CartItem {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([cartId, productId])
+  @@map("cart_item")
 }
 
-// ─── ORDER ────────────────────────────────────────────────────────────────────
+// ─── ORDER ─────────────────────────────────────────────────────────@───────────
 
 model Order {
   id              Int                  @id @default(autoincrement())
@@ -169,6 +175,7 @@ model Order {
   user                User                 @relation(fields: [userId], references: [id])
   orderItems          OrderItem[]
   paymentTransactions PaymentTransaction[]
+  @@map("order")
 }
 
 model OrderItem {
@@ -181,6 +188,7 @@ model OrderItem {
 
   productId Int
   product   Product @relation(fields: [productId], references: [id])
+  @@map("order_item")
 }
 
 // ─── NEWS ─────────────────────────────────────────────────────────────────────
@@ -202,6 +210,7 @@ model News {
 
   comments    NewsComment[]
   reactions   NewsReaction[]
+  @@map("news")
 }
 
 model NewsComment {
@@ -215,6 +224,7 @@ model NewsComment {
 
   userId    Int
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("news_comment")
 }
 
 model NewsReaction {
@@ -229,6 +239,7 @@ model NewsReaction {
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([newsId, userId])
+  @@map("news_reaction")
 }
 
 // ─── SUPPORT CHAT MODELS ──────────────────────────────────────────────────────
@@ -249,6 +260,7 @@ model SupportRequest {
   assignedStaff   User?         @relation("StaffRequests", fields: [assignedStaffId], references: [id])
 
   messages        Message[]
+  @@map("supportrequest")
 }
 
 model Message {
@@ -261,6 +273,7 @@ model Message {
 
   senderId         Int
   sender           User @relation(fields: [senderId], references: [id])
+  @@map("message")
 }
 
 model PaymentTransaction {
@@ -274,4 +287,5 @@ model PaymentTransaction {
   createdAt     DateTime @default(now())
 
   order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  @@map("paymenttransaction")
 }
