@@ -83,7 +83,7 @@ model ProductTag {
   slug     String @unique
 
   products ProductTagOnProduct[]
-  @@map("product_tag")
+  @@map("producttag")
 }
 
 model ProductTagOnProduct {
@@ -151,7 +151,7 @@ model CartItem {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([cartId, productId])
-  @@map("cart_item")
+  @@map("cartitem")
 }
 
 // ─── ORDER ─────────────────────────────────────────────────────────@───────────
@@ -188,7 +188,7 @@ model OrderItem {
 
   productId Int
   product   Product @relation(fields: [productId], references: [id])
-  @@map("order_item")
+  @@map("orderitem")
 }
 
 // ─── NEWS ─────────────────────────────────────────────────────────────────────
@@ -224,7 +224,7 @@ model NewsComment {
 
   userId    Int
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@map("news_comment")
+  @@map("newscomment")
 }
 
 model NewsReaction {
@@ -239,7 +239,7 @@ model NewsReaction {
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([newsId, userId])
-  @@map("news_reaction")
+  @@map("newsreaction")
 }
 
 // ─── SUPPORT CHAT MODELS ──────────────────────────────────────────────────────
