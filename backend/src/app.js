@@ -22,7 +22,12 @@ const app = express();
 // ─── Core Middleware ─────────────────────────────────────────────────────────
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://f8-last-project.vercel.app',
+    'https://f8-last-project-git-feat-deploy-minhndn05112004-projects-b2500d33.vercel.app'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
