@@ -1,34 +1,9 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// Debug: kiểm tra credentials có được load đúng không
-console.log('[Mail] GMAIL_USER:', process.env.GMAIL_USER);
-console.log('[Mail] GMAIL_APP_PASSWORD loaded:', !!process.env.GMAIL_APP_PASSWORD);
+// Debug: kiểm tra API key
+console.log('[Mail] RESEND_API_KEY loaded:', process.env.RESEND_API_KEY?.slice(0, 8));
 
-// App Password của Google có thể có dấu cách — cần strip trước khi dùng
-const gmailAppPassword = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s/g, '');
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // STARTTLS
-  family: 4,    // Force IPv4 — Render free tier không hỗ trợ outbound IPv6
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: gmailAppPassword,
-  },
-  connectionTimeout: 10000, // 10s
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
-});
-
-// Kiểm tra kết nối ngay khi khởi động
-transporter.verify((error) => {
-  if (error) {
-    console.error('[Mail] SMTP connection FAILED:', error.message);
-  } else {
-    console.log('[Mail] SMTP connection OK — ready to send emails');
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendVerificationEmail = async (toEmail, token) => {
   const backendVerifyLink = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/verify-email?token=${token}`;
@@ -58,21 +33,27 @@ const sendVerificationEmail = async (toEmail, token) => {
   `;
 
   try {
-    console.log('[Mail] Sending verification email to:', toEmail);
+    console.log('[Mail] Sending verification email via Resend to:', toEmail);
 
-    const info = await transporter.sendMail({
-      from: `"Anthony Shop" <${process.env.GMAIL_USER}>`,
+    const { data, error } = await resend.emails.send({
+      from: 'Anthony Shop <onboarding@resend.dev>',
       to: toEmail,
       subject: 'Verify your email - Anthony Shop',
       html: htmlContent,
     });
 
-    console.log('[Mail] Verification email sent successfully, id:', info.messageId);
+    if (error) {
+      console.error('[Mail Error] Resend API error:');
+      console.error('  name   :', error.name);
+      console.error('  message:', error.message);
+      return false;
+    }
+
+    console.log('[Mail] Verification email sent successfully, id:', data?.id);
     return true;
   } catch (err) {
     console.error('[Mail Error] Exception thrown:');
     console.error('  message:', err.message);
-    console.error('  code   :', err.code);
     console.error('  stack  :', err.stack);
     return false;
   }
