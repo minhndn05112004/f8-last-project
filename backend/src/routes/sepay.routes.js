@@ -90,20 +90,41 @@ const handleSePayWebhook = async (req, res) => {
       console.log(`[SePay Webhook] 🔑 Dùng trường "code": ${orderCode}`);
     } else if (content && typeof content === 'string') {
       // Tự parse từ nội dung chuyển khoản
-      // Chuẩn hóa: uppercase + thay khoảng trắng → dấu gạch dưới
-      const normalized = content.toUpperCase().trim().replace(/\s+/g, '_');
+      // Chuẩn hóa: uppercase, bỏ dấu - và khoảng trắng để match chuỗi liền
+      const upper      = content.toUpperCase().trim();
+      const normalized = upper.replace(/\s+/g, '_');
 
-      // Thử match PAY_ORDER_ORDER_... hoặc PAY_ORDER_... hoặc ORDER_...
-      const match =
-        normalized.match(/PAY_ORDER_(ORDER_[A-Z0-9_]+)/) ||
-        normalized.match(/PAY_ORDER_([A-Z0-9_]+)/)       ||
-        normalized.match(/(ORDER_\d+_\d+)/);
+      // ── Ưu tiên 1: Format có dấu gạch dưới ─────────────────────────────────
+      // "PAY_ORDER_ORDER_1779968866300_426" hoặc dùng khoảng trắng thay _
+      const matchUnderscore =
+        normalized.match(/PAY_ORDER_(ORDER_\d+_\d+)/) ||
+        normalized.match(/PAY_ORDER_(ORDER_[A-Z0-9_]+)/);
 
-      if (match) {
-        orderCode = match[1];
-        console.log(`[SePay Webhook] 🔑 Parse từ "content": ${orderCode}`);
+      if (matchUnderscore) {
+        orderCode = matchUnderscore[1];
+        console.log(`[SePay Webhook] 🔑 Parse từ "content" (format _): ${orderCode}`);
+      } else {
+        // ── Ưu tiên 2: Ngân hàng xóa toàn bộ dấu _ ──────────────────────────
+        // "131048678869-PAYORDERORDER1779968866300426-CHUYEN TIEN-..."
+        // digits = "1779968866300426" → slice(-3) = "426" → ORDER_1779968866300_426
+        const noSeparator = upper.replace(/[\s\-]/g, '');
+        const matchRaw    = noSeparator.match(/PAYORDERORDER(\d+)/);
+
+        if (matchRaw) {
+          const digits = matchRaw[1];
+          orderCode    = 'ORDER_' + digits.slice(0, -3) + '_' + digits.slice(-3);
+          console.log(`[SePay Webhook] 🔑 Parse từ "content" (no-underscore): digits=${digits} → ${orderCode}`);
+        } else {
+          // ── Fallback: ORDER_ts_rand trực tiếp trong chuỗi ───────────────────
+          const matchDirect = normalized.match(/(ORDER_\d+_\d+)/);
+          if (matchDirect) {
+            orderCode = matchDirect[1];
+            console.log(`[SePay Webhook] 🔑 Parse từ "content" (direct): ${orderCode}`);
+          }
+        }
       }
     }
+
 
     // ── Bước 4: Không tìm thấy orderCode → vẫn trả 200 để SePay không retry ──
     if (!orderCode) {
