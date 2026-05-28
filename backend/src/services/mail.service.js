@@ -1,5 +1,8 @@
 const { Resend } = require('resend');
 
+// Debug: kiểm tra API key có được load đúng không
+console.log('[Mail] RESEND KEY:', process.env.RESEND_API_KEY?.slice(0, 8));
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendVerificationEmail = async (toEmail, token) => {
@@ -31,6 +34,8 @@ const sendVerificationEmail = async (toEmail, token) => {
   `;
 
   try {
+    console.log('[Mail] Sending verification email to:', toEmail);
+
     const { data, error } = await resend.emails.send({
       from: 'Anthony Shop <onboarding@resend.dev>', // Dùng domain mặc định của Resend (free tier)
       to: toEmail,
@@ -39,14 +44,14 @@ const sendVerificationEmail = async (toEmail, token) => {
     });
 
     if (error) {
-      console.error('[Mail Error] Resend API error:', error);
+      console.error('[Mail Error] Resend API error:', JSON.stringify(error, null, 2));
       return false;
     }
 
-    console.log('[Mail] Verification email sent, id:', data.id);
+    console.log('[Mail] Verification email sent successfully, id:', data?.id);
     return true;
   } catch (err) {
-    console.error('[Mail Error]', err.message);
+    console.error('[Mail Error] Exception thrown:', err);
     return false;
   }
 };
