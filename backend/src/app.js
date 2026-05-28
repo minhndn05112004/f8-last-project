@@ -13,6 +13,7 @@ const newsRoutes = require('./routes/news.routes');
 const commentRoutes = require('./routes/comment.routes');
 const supportRoutes = require('./routes/support.routes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const sepayRoutes   = require('./routes/sepay.routes');  // POST /api/payment/sepay-webhook
 
 // Middleware
 const errorHandler = require('./middlewares/errorHandler');
@@ -59,6 +60,7 @@ app.use('/api/news', newsRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/payment', sepayRoutes);   // POST /api/payment/sepay-webhook (SePay webhook riêng)
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 
