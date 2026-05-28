@@ -1,9 +1,8 @@
-const { Resend } = require('resend');
+const axios = require('axios');
 
 // Debug: kiểm tra API key
-console.log('[Mail] RESEND_API_KEY loaded:', process.env.RESEND_API_KEY?.slice(0, 8));
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+console.log('[Mail] BREVO_API_KEY loaded:', !!process.env.BREVO_API_KEY);
+console.log('[Mail] BREVO_SENDER_EMAIL:', process.env.BREVO_SENDER_EMAIL);
 
 const sendVerificationEmail = async (toEmail, token) => {
   const backendVerifyLink = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/verify-email?token=${token}`;
@@ -33,28 +32,37 @@ const sendVerificationEmail = async (toEmail, token) => {
   `;
 
   try {
-    console.log('[Mail] Sending verification email via Resend to:', toEmail);
+    console.log('[Mail] Sending verification email via Brevo to:', toEmail);
 
-    const { data, error } = await resend.emails.send({
-      from: 'Anthony Shop <onboarding@resend.dev>',
-      to: toEmail,
-      subject: 'Verify your email - Anthony Shop',
-      html: htmlContent,
-    });
+    const response = await axios.post(
+      'https://api.brevo.com/v3/smtp/email',
+      {
+        sender: {
+          name: 'Anthony Shop',
+          email: process.env.BREVO_SENDER_EMAIL,
+        },
+        to: [{ email: toEmail }],
+        subject: 'Verify your email - Anthony Shop',
+        htmlContent,
+      },
+      {
+        headers: {
+          'api-key': process.env.BREVO_API_KEY,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        timeout: 15000,
+      }
+    );
 
-    if (error) {
-      console.error('[Mail Error] Resend API error:');
-      console.error('  name   :', error.name);
-      console.error('  message:', error.message);
-      return false;
-    }
-
-    console.log('[Mail] Verification email sent successfully, id:', data?.id);
+    console.log('[Mail] Verification email sent successfully, messageId:', response.data?.messageId);
     return true;
   } catch (err) {
-    console.error('[Mail Error] Exception thrown:');
-    console.error('  message:', err.message);
-    console.error('  stack  :', err.stack);
+    const errData = err.response?.data;
+    console.error('[Mail Error] Brevo send failed:');
+    console.error('  status :', err.response?.status);
+    console.error('  message:', errData?.message || err.message);
+    console.error('  code   :', errData?.code);
     return false;
   }
 };
