@@ -90,20 +90,51 @@ const verifyWebhookApiKey = (authorizationHeader) => {
 const extractOrderCode = (transactionContent) => {
   if (!transactionContent) return null;
 
-  // Chuẩn hóa: uppercase + thay khoảng trắng liên tiếp → dấu gạch dưới
-  const normalized = transactionContent.toUpperCase().trim().replace(/\s+/g, '_');
+  // Chuẩn hóa: uppercase + trim, nhưng GIỮ NGUYÊN khoảng trắng (xử lý sau)
+  const upper = transactionContent.toUpperCase().trim();
 
-  // Thử match PAY_ORDER_ORDER_... hoặc PAY_ORDER_...
-  const match = normalized.match(/PAY_ORDER_(ORDER_[A-Z0-9_]+)/) || normalized.match(/PAY_ORDER_([A-Z0-9_]+)/);
+  // ── Format 1: Ngân hàng giữ nguyên dấu gạch dưới ─────────────────────────
+  // Ví dụ: "PAY_ORDER_ORDER_1779968182646_366-CHUYEN TIEN"
+  // Hoặc:  "PAY ORDER ORDER 1779968182646 366" (khoảng trắng thay dấu _)
+  const normalized = upper.replace(/\s+/g, '_');
+  const matchUnderscore =
+    normalized.match(/PAY_ORDER_(ORDER_\d+_\d+)/) ||   // PAY_ORDER_ORDER_ts_rand
+    normalized.match(/PAY_ORDER_(ORDER_[A-Z0-9_]+)/);  // PAY_ORDER_ORDER_...
 
-  if (match) {
-    console.log(`[SePay] ✅ Tìm thấy orderCode: ${match[1]}`);
-    return match[1];
+  if (matchUnderscore) {
+    console.log(`[SePay] ✅ Format dấu gạch dưới — orderCode: ${matchUnderscore[1]}`);
+    return matchUnderscore[1];
+  }
+
+  // ── Format 2: Ngân hàng XÓA TOÀN BỘ dấu gạch dưới ───────────────────────
+  // Ví dụ: "131047092510-PAYORDERORDER1779968182646366-CHUYEN TIEN-..."
+  // Cần reconstruct: PAYORDERORDER<timestamp13><rand> → ORDER_<timestamp13>_<rand>
+  //
+  // Mã đơn hàng gốc: ORDER_<13 chữ số timestamp>_<rand 1-4 chữ số>
+  // Sau khi xóa _:   ORDERORDER<13 chữ số><rand>
+  // Prefix từ QR:    PAY + ORDER + ORDER = PAYORDERORDER
+  //
+  // Regex: PAYORDERORDER + (13 chữ số timestamp) + (1-6 chữ số rand)
+  const noUnderscoreStr = upper.replace(/[\s\-]/g, ''); // bỏ khoảng trắng và dấu gạch ngang
+  const matchNoUnderscore = noUnderscoreStr.match(/PAYORDERORDER(\d{13})(\d{1,6})/);
+
+  if (matchNoUnderscore) {
+    const orderCode = `ORDER_${matchNoUnderscore[1]}_${matchNoUnderscore[2]}`;
+    console.log(`[SePay] ✅ Format không dấu gạch dưới — orderCode: ${orderCode}`);
+    return orderCode;
+  }
+
+  // ── Format 3: Chỉ có ORDER_ts_rand không kèm prefix ─────────────────────
+  const matchDirect = normalized.match(/(ORDER_\d+_\d+)/);
+  if (matchDirect) {
+    console.log(`[SePay] ✅ Format trực tiếp — orderCode: ${matchDirect[1]}`);
+    return matchDirect[1];
   }
 
   console.warn(`[SePay] ⚠️  Không tìm thấy orderCode trong: "${transactionContent}"`);
   return null;
 };
+
 
 // ─── SePay API Verification (Optional) ───────────────────────────────────────
 

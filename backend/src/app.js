@@ -13,7 +13,7 @@ const newsRoutes = require('./routes/news.routes');
 const commentRoutes = require('./routes/comment.routes');
 const supportRoutes = require('./routes/support.routes');
 const paymentRoutes = require('./routes/paymentRoutes');
-const sepayRoutes   = require('./routes/sepay.routes');  // POST /api/payment/sepay-webhook
+const sepayRoutes = require('./routes/sepay.routes');  // POST /api/payment/sepay-webhook
 
 // Middleware
 const errorHandler = require('./middlewares/errorHandler');

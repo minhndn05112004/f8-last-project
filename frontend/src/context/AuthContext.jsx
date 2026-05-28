@@ -5,7 +5,13 @@ import { toast } from 'react-hot-toast';
 
 const AuthContext = createContext();
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000/chat';
+// Đọc từ env (VITE_API_URL), thêm namespace /chat cho socket chat
+// Fallback về production server để tránh kết nối localhost khi deploy
+const _SOCKET_BASE =
+  import.meta.env.VITE_API_URL ||
+  'https://f8-last-project.onrender.com';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || `${_SOCKET_BASE}/chat`;
+
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
