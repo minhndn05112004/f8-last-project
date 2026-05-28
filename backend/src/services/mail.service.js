@@ -1,18 +1,20 @@
 const nodemailer = require('nodemailer');
 
-// Set up transporter for development. In production, use real SMTP credentials.
+const smtpPort = parseInt(process.env.SMTP_PORT) || 587;
+
+// Set up transporter — supports both port 465 (SSL) and 587 (STARTTLS)
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.ethereal.email',
-  port: process.env.SMTP_PORT || 587,
+  port: smtpPort,
+  secure: smtpPort === 465, // true for port 465 (SSL), false for 587 (STARTTLS)
   auth: {
     user: process.env.SMTP_USER || 'leola.muller31@ethereal.email',
-    pass: process.env.SMTP_PASS || 'd1mP6Bv5S5d7yT37Xy', // Provide a mock ethereal account for testing if none is set
+    pass: process.env.SMTP_PASS || 'd1mP6Bv5S5d7yT37Xy',
   },
 });
 
 const sendVerificationEmail = async (toEmail, token) => {
-  const verifyLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/api/auth/verify-email?token=${token}`; // Assuming the verify route will be called directly on backend or frontend handles it and calls backend. Wait, usually the email link hits backend directly which then redirects to frontend, OR it hits frontend which calls backend. The requirements say: GET /api/auth/verify-email?token=... and then redirect frontend /login?verified=true. So the link should point to the BACKEND route.
-
+  // Link trỏ về BACKEND để xử lý verify rồi redirect sang frontend
   const backendVerifyLink = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/verify-email?token=${token}`;
 
   const htmlContent = `
@@ -40,22 +42,25 @@ const sendVerificationEmail = async (toEmail, token) => {
   `;
 
   try {
+    const senderEmail = process.env.SMTP_USER || 'no-reply@anthonyshop.com';
     const info = await transporter.sendMail({
-      from: '"Anthony Shop" <no-reply@anthonyshop.com>',
+      from: `"Anthony Shop" <${senderEmail}>`,
       to: toEmail,
       subject: 'Verify your email - Anthony Shop',
       html: htmlContent,
     });
     console.log('Verification email sent: %s', info.messageId);
-    
+
     // If using Ethereal, log the preview URL
     if (transporter.options.host === 'smtp.ethereal.email') {
       console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
     }
-    
+
     return true;
   } catch (error) {
-    console.error('Error sending email: ', error);
+    console.error('[Mail Error] Code:', error.code);
+    console.error('[Mail Error] Response:', error.response);
+    console.error('[Mail Error] Full:', error.message);
     return false;
   }
 };
