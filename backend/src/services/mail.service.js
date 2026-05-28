@@ -4,12 +4,29 @@ const nodemailer = require('nodemailer');
 console.log('[Mail] GMAIL_USER:', process.env.GMAIL_USER);
 console.log('[Mail] GMAIL_APP_PASSWORD loaded:', !!process.env.GMAIL_APP_PASSWORD);
 
+// App Password của Google có thể có dấu cách — cần strip trước khi dùng
+const gmailAppPassword = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s/g, '');
+
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // STARTTLS
   auth: {
     user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    pass: gmailAppPassword,
   },
+  connectionTimeout: 10000, // 10s
+  greetingTimeout: 10000,
+  socketTimeout: 15000,
+});
+
+// Kiểm tra kết nối ngay khi khởi động
+transporter.verify((error) => {
+  if (error) {
+    console.error('[Mail] SMTP connection FAILED:', error.message);
+  } else {
+    console.log('[Mail] SMTP connection OK — ready to send emails');
+  }
 });
 
 const sendVerificationEmail = async (toEmail, token) => {
