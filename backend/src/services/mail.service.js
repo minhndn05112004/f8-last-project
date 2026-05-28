@@ -11,6 +11,7 @@ const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
   secure: false, // STARTTLS
+  family: 4,    // Force IPv4 — Render free tier không hỗ trợ outbound IPv6
   auth: {
     user: process.env.GMAIL_USER,
     pass: gmailAppPassword,
