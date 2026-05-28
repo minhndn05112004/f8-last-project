@@ -1,8 +1,20 @@
-const axios = require('axios');
+const nodemailer = require('nodemailer');
 
-// Debug: kiểm tra API key
-console.log('[Mail] BREVO_API_KEY loaded:', !!process.env.BREVO_API_KEY);
-console.log('[Mail] BREVO_SENDER_EMAIL:', process.env.BREVO_SENDER_EMAIL);
+// Debug credentials loading
+console.log('[Mail] GMAIL_USER:', process.env.GMAIL_USER);
+console.log('[Mail] GMAIL_APP_PASSWORD loaded:', !!process.env.GMAIL_APP_PASSWORD);
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // STARTTLS
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+  family: 4, // Force IPv4 to avoid ENETUNREACH issues on environments with broken IPv6
+  connectionTimeout: 10000, // 10 seconds timeout
+});
 
 const sendVerificationEmail = async (toEmail, token) => {
   const backendVerifyLink = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/verify-email?token=${token}`;
@@ -31,38 +43,25 @@ const sendVerificationEmail = async (toEmail, token) => {
     </div>
   `;
 
+  const mailOptions = {
+    from: `"Anthony Shop" <${process.env.GMAIL_USER}>`,
+    to: toEmail,
+    subject: 'Verify your email - Anthony Shop',
+    html: htmlContent,
+  };
+
   try {
-    console.log('[Mail] Sending verification email via Brevo to:', toEmail);
-
-    const response = await axios.post(
-      'https://api.brevo.com/v3/smtp/email',
-      {
-        sender: {
-          name: 'Anthony Shop',
-          email: process.env.BREVO_SENDER_EMAIL,
-        },
-        to: [{ email: toEmail }],
-        subject: 'Verify your email - Anthony Shop',
-        htmlContent,
-      },
-      {
-        headers: {
-          'api-key': process.env.BREVO_API_KEY,
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        timeout: 15000,
-      }
-    );
-
-    console.log('[Mail] Verification email sent successfully, messageId:', response.data?.messageId);
+    console.log('[Mail] Sending verification email via Gmail SMTP to:', toEmail);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('[Mail] Verification email sent successfully, messageId:', info.messageId);
     return true;
   } catch (err) {
-    const errData = err.response?.data;
-    console.error('[Mail Error] Brevo send failed:');
-    console.error('  status :', err.response?.status);
-    console.error('  message:', errData?.message || err.message);
-    console.error('  code   :', errData?.code);
+    console.error('[Mail Error] Gmail SMTP send failed:');
+    console.error('  message:', err.message);
+    console.error('  code   :', err.code);
+    if (err.stack) {
+      console.error('  stack  :', err.stack);
+    }
     return false;
   }
 };
