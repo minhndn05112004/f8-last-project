@@ -1,17 +1,6 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const smtpPort = parseInt(process.env.SMTP_PORT) || 587;
-
-// Set up transporter — supports both port 465 (SSL) and 587 (STARTTLS)
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.ethereal.email',
-  port: smtpPort,
-  secure: smtpPort === 465, // true for port 465 (SSL), false for 587 (STARTTLS)
-  auth: {
-    user: process.env.SMTP_USER || 'leola.muller31@ethereal.email',
-    pass: process.env.SMTP_PASS || 'd1mP6Bv5S5d7yT37Xy',
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendVerificationEmail = async (toEmail, token) => {
   // Link trỏ về BACKEND để xử lý verify rồi redirect sang frontend
@@ -42,25 +31,22 @@ const sendVerificationEmail = async (toEmail, token) => {
   `;
 
   try {
-    const senderEmail = process.env.SMTP_USER || 'no-reply@anthonyshop.com';
-    const info = await transporter.sendMail({
-      from: `"Anthony Shop" <${senderEmail}>`,
+    const { data, error } = await resend.emails.send({
+      from: 'Anthony Shop <onboarding@resend.dev>', // Dùng domain mặc định của Resend (free tier)
       to: toEmail,
       subject: 'Verify your email - Anthony Shop',
       html: htmlContent,
     });
-    console.log('Verification email sent: %s', info.messageId);
 
-    // If using Ethereal, log the preview URL
-    if (transporter.options.host === 'smtp.ethereal.email') {
-      console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    if (error) {
+      console.error('[Mail Error] Resend API error:', error);
+      return false;
     }
 
+    console.log('[Mail] Verification email sent, id:', data.id);
     return true;
-  } catch (error) {
-    console.error('[Mail Error] Code:', error.code);
-    console.error('[Mail Error] Response:', error.response);
-    console.error('[Mail Error] Full:', error.message);
+  } catch (err) {
+    console.error('[Mail Error]', err.message);
     return false;
   }
 };
