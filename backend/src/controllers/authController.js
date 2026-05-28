@@ -71,7 +71,17 @@ const register = async (req, res, next) => {
     });
 
     // Send verification email
-    await sendVerificationEmail(user.email, verifyToken);
+    const emailSent = await sendVerificationEmail(user.email, verifyToken);
+    if (!emailSent) {
+      console.error('[Register] Failed to send verification email to:', user.email);
+      // Vẫn tạo user thành công, nhưng báo lỗi gửi mail
+      return successResponse(
+        res,
+        null,
+        'Registration successful but failed to send verification email. Please use resend verification.',
+        201
+      );
+    }
 
     return successResponse(
       res,
@@ -136,7 +146,10 @@ const resendVerification = async (req, res, next) => {
       data: { verifyToken },
     });
 
-    await sendVerificationEmail(user.email, verifyToken);
+    const emailSent = await sendVerificationEmail(user.email, verifyToken);
+    if (!emailSent) {
+      return errorResponse(res, 'Failed to send verification email. Please try again later.', 500);
+    }
 
     return successResponse(res, null, 'Verification email resent successfully');
   } catch (err) {

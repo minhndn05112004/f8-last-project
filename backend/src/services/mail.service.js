@@ -69,7 +69,10 @@ const sendVerificationEmail = async (toEmail, token) => {
     console.log('[Mail] Verification email sent successfully, id:', info.messageId);
     return true;
   } catch (err) {
-    console.error('[Mail Error] Exception thrown:', JSON.stringify(err, null, 2));
+    console.error('[Mail Error] Exception thrown:');
+    console.error('  message:', err.message);
+    console.error('  code   :', err.code);
+    console.error('  stack  :', err.stack);
     return false;
   }
 };
