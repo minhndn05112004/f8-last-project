@@ -1,5 +1,22 @@
-const { Resend } = require('resend');
+import nodemailer from 'nodemailer';
 
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,       // ducanhbanche@gmail.com
+    pass: process.env.GMAIL_APP_PASSWORD // App Password (không phải mật khẩu Gmail)
+  }
+});
+
+export const sendEmail = async ({ to, subject, html }) => {
+  await transporter.sendMail({
+    from: `"F8 Shop" <${process.env.GMAIL_USER}>`,
+    to,
+    subject,
+    html
+  });
+};
 // Debug: kiểm tra API key có được load đúng không
 console.log('[Mail] RESEND KEY:', process.env.RESEND_API_KEY?.slice(0, 8));
 
