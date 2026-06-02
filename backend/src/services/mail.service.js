@@ -1,4 +1,6 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+const net = require('net');
 
 // Debug credentials loading
 console.log('[Mail] GMAIL_USER:', process.env.GMAIL_USER);
@@ -12,8 +14,73 @@ const transporter = nodemailer.createTransport({
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
   },
-  family: 4, // Force IPv4 to avoid ENETUNREACH issues on environments with broken IPv6
-  connectionTimeout: 10000, // 10 seconds timeout
+  debug: true,
+  logger: true,
+  connectionTimeout: 30000,
+  greetingTimeout: 30000,
+  socketTimeout: 30000,
+  getSocket: (options, callback) => {
+    let resolved = false;
+    const timeoutDuration = options.connectionTimeout || 30000;
+
+    let socket;
+    const timeoutId = setTimeout(() => {
+      if (resolved) return;
+      resolved = true;
+      if (socket) {
+        socket.destroy();
+      }
+      const err = new Error('Connection timeout');
+      err.code = 'ETIMEDOUT';
+      callback(err);
+    }, timeoutDuration);
+
+    dns.lookup(options.host, { family: 4 }, (dnsErr, address) => {
+      if (resolved) return;
+      if (dnsErr) {
+        resolved = true;
+        clearTimeout(timeoutId);
+        return callback(dnsErr);
+      }
+
+      const onConnect = () => {
+        if (resolved) return;
+        resolved = true;
+        clearTimeout(timeoutId);
+        socket.removeListener('error', onError);
+        callback(null, { connection: socket });
+      };
+
+      const onError = (socketErr) => {
+        if (resolved) return;
+        resolved = true;
+        clearTimeout(timeoutId);
+        if (socket) {
+          socket.removeListener('connect', onConnect);
+          socket.destroy();
+        }
+        callback(socketErr);
+      };
+
+      socket = net.connect({
+        host: address,
+        port: options.port,
+        localAddress: options.localAddress,
+      });
+
+      socket.once('connect', onConnect);
+      socket.once('error', onError);
+    });
+  },
+});
+
+// Enable transporter.verify() at startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('[Mail] SMTP connection verification failed on startup:', error);
+  } else {
+    console.log('[Mail] SMTP connection verification success. Server is ready to take messages');
+  }
 });
 
 const sendVerificationEmail = async (toEmail, token) => {
