@@ -8,7 +8,7 @@ const EcomFooter = () => {
           {/* Logo & Info */}
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 no-underline mb-6">
-              <div className="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center text-white font-bold text-xl">A</div>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-xl"><img src="https://cdn-icons-png.flaticon.com/512/6903/6903187.png" alt="logo" /></div>
               <span className="text-xl font-bold tracking-tight text-white">
                 Anthony <span className="text-red-600">Shop</span>
               </span>
