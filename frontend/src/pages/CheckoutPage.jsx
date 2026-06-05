@@ -239,11 +239,15 @@ const CheckoutPage = () => {
               <h2 className="text-lg font-bold text-slate-900 pb-4 border-b border-slate-100 mb-6">Tóm tắt đơn hàng</h2>
               
               <div className="space-y-4 max-h-60 overflow-y-auto pr-2 mb-6 custom-scrollbar">
-                {cartItems.map(item => (
-                  <div key={item.id} className="flex gap-4">
-                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-100 flex-shrink-0 bg-slate-50">
-                      <img src={item.product.thumbnail || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80'} alt={item.product.name} className="w-full h-full object-cover" />
-                    </div>
+                {cartItems.map(item => {
+                  const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80';
+                  const rawImage = item.product.thumbnail || fallbackImg;
+                  const itemImage = rawImage.startsWith('http') ? rawImage : `http://localhost:5000${rawImage}`;
+                  return (
+                    <div key={item.id} className="flex gap-4">
+                      <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-100 flex-shrink-0 bg-slate-50">
+                        <img src={itemImage} alt={item.product.name} className="w-full h-full object-cover" />
+                      </div>
                     <div className="flex-1">
                       <h4 className="text-sm font-bold text-slate-800 line-clamp-2 leading-tight">{item.product.name}</h4>
                       <div className="flex justify-between items-center mt-2">
@@ -252,7 +256,8 @@ const CheckoutPage = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                );
+              })}
               </div>
 
               <div className="space-y-4 mb-6">

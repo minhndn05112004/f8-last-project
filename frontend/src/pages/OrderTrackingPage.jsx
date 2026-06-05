@@ -164,11 +164,15 @@ const OrderTrackingPage = () => {
           <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
             <h3 className="font-bold text-lg text-slate-800 border-b border-slate-100 pb-4 mb-4">Sản Phẩm</h3>
             <div className="space-y-4">
-              {order.orderItems.map(item => (
-                <div key={item.id} className="flex gap-4">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-100 flex-shrink-0 bg-slate-50">
-                    <img src={item.product.thumbnail || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80'} alt={item.product.name} className="w-full h-full object-cover" />
-                  </div>
+              {order.orderItems.map(item => {
+                const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80';
+                const rawImage = item.product.thumbnail || fallbackImg;
+                const itemImage = rawImage.startsWith('http') ? rawImage : `http://localhost:5000${rawImage}`;
+                return (
+                  <div key={item.id} className="flex gap-4">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-100 flex-shrink-0 bg-slate-50">
+                      <img src={itemImage} alt={item.product.name} className="w-full h-full object-cover" />
+                    </div>
                   <div className="flex-1">
                     <h4 className="text-sm font-bold text-slate-800 line-clamp-2">{item.product.name}</h4>
                     <div className="flex justify-between items-center mt-2 text-sm">
@@ -177,7 +181,8 @@ const OrderTrackingPage = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+            })}
             </div>
             
             <div className="border-t border-slate-100 mt-6 pt-4 flex justify-between items-center">

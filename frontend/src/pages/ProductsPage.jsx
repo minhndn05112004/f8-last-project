@@ -307,7 +307,8 @@ const ProductsPage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                   {products.map((product) => {
                     const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80';
-                    const mainImage = product.images?.[0] || product.thumbnail || fallbackImg;
+                    const rawImage = product.images?.[0] || product.thumbnail || fallbackImg;
+                    const mainImage = rawImage.startsWith('http') ? rawImage : `http://localhost:5000${rawImage}`;
                     const onSale = product.salePrice && product.salePrice < product.price;
 
                     return (

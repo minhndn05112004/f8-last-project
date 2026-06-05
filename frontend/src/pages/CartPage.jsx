@@ -112,7 +112,8 @@ const CartPage = () => {
                 <div className="divide-y divide-slate-100">
                   {cartItems.map((item) => {
                     const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80';
-                    const itemImage = item.product.thumbnail || fallbackImg;
+                    const rawImage = item.product.thumbnail || fallbackImg;
+                    const itemImage = rawImage.startsWith('http') ? rawImage : `http://localhost:5000${rawImage}`;
                     const price = item.product.salePrice || item.product.price;
                     const itemSubtotal = price * item.quantity;
 

@@ -23,7 +23,7 @@ const Hero = () => (
         transition={{ duration: 0.8 }}
       >
         <div className="inline-block px-6 py-2 rounded-full border border-red-500/30 bg-red-500/10 text-red-500 font-bold mb-6 tracking-widest text-sm">
-          PREMIUM MEAT SHOP
+          Thịt sạch cao cấp
         </div>
 
         {/* The "Badge" from image */}
@@ -110,12 +110,12 @@ const Introduction = () => {
 
 const ProductCard = ({ product }) => {
   const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop';
-  const image = product.thumbnail 
+  const image = product.thumbnail
     ? (product.thumbnail.startsWith('http') ? product.thumbnail : `http://localhost:5000${product.thumbnail}`)
     : fallbackImg;
-  
+
   const hasDiscount = product.salePrice && product.salePrice < product.price;
-  
+
   const formatPrice = (p) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p);
   };
@@ -163,8 +163,8 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
       <div className="p-6 pt-0">
-        <Link 
-          to={`/products/${product.slug}`} 
+        <Link
+          to={`/products/${product.slug}`}
           className="block w-full py-3 rounded-lg border border-slate-200 font-bold text-sm text-slate-700 hover:bg-red-800 hover:text-white hover:border-red-800 text-center no-underline transition-all"
         >
           XEM CHI TIẾT

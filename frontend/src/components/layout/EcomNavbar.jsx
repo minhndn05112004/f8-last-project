@@ -52,7 +52,7 @@ const EcomNavbar = () => {
     { name: 'Trang chủ', path: '/' },
     { name: 'Sản phẩm', path: '/products' },
     { name: 'Tin tức', path: '/news' },
-    { name: 'About Us', path: '/about' },
+    { name: 'Về chúng tôi', path: '/about' },
   ];
 
   const handleLogout = async () => {
@@ -204,19 +204,16 @@ const EcomNavbar = () => {
           >
             <div className="w-6 h-5 flex flex-col justify-between">
               <span
-                className={`block h-0.5 bg-current rounded-full transition-all duration-300 origin-center ${
-                  isMobileMenuOpen ? 'rotate-45 translate-y-[9px]' : ''
-                }`}
+                className={`block h-0.5 bg-current rounded-full transition-all duration-300 origin-center ${isMobileMenuOpen ? 'rotate-45 translate-y-[9px]' : ''
+                  }`}
               />
               <span
-                className={`block h-0.5 bg-current rounded-full transition-all duration-300 ${
-                  isMobileMenuOpen ? 'opacity-0 scale-x-0' : ''
-                }`}
+                className={`block h-0.5 bg-current rounded-full transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0 scale-x-0' : ''
+                  }`}
               />
               <span
-                className={`block h-0.5 bg-current rounded-full transition-all duration-300 origin-center ${
-                  isMobileMenuOpen ? '-rotate-45 -translate-y-[9px]' : ''
-                }`}
+                className={`block h-0.5 bg-current rounded-full transition-all duration-300 origin-center ${isMobileMenuOpen ? '-rotate-45 -translate-y-[9px]' : ''
+                  }`}
               />
             </div>
           </button>
@@ -225,12 +222,11 @@ const EcomNavbar = () => {
 
       {/* Mobile Menu Panel — animated slide */}
       <div
-        className={`md:hidden absolute top-full left-0 right-0 shadow-lg border-t overflow-hidden transition-all duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
-        } ${solidStyle
-          ? 'bg-white border-slate-100 text-slate-800'
-          : 'bg-slate-950 border-slate-800 text-white'
-        }`}
+        className={`md:hidden absolute top-full left-0 right-0 shadow-lg border-t overflow-hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+          } ${solidStyle
+            ? 'bg-white border-slate-100 text-slate-800'
+            : 'bg-slate-950 border-slate-800 text-white'
+          }`}
       >
         <div className="py-4 px-6 flex flex-col gap-3">
           {navLinks.map((link) => (
