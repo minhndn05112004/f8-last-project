@@ -24,17 +24,29 @@ import { CartProvider } from './context/CartContext'
 import { ProtectedRoute, RoleProtectedRoute } from './components/auth/ProtectedRoute'
 import { Toaster } from 'react-hot-toast'
 import ScrollToTop from './components/common/ScrollToTop'
+import ScrollToTopButton from './components/common/ScrollToTopButton'
 
+// Pages with a full-width hero that goes behind the transparent nav
+const HERO_ROUTES = ['/', '/products', '/news', '/about'];
 
 function AppContent() {
   const location = useLocation()
   const { user } = useAuth()
   const isDashboard = location.pathname.startsWith('/staff') || location.pathname.startsWith('/admin')
 
+  // Non-hero pages need a spacer div so content isn't hidden behind fixed header
+  const isHeroRoute =
+    HERO_ROUTES.includes(location.pathname) ||
+    location.pathname.startsWith('/products/') ||
+    location.pathname.startsWith('/news/')
+  const needsSpacer = !isDashboard && !isHeroRoute
+
   return (
     <CartProvider user={user}>
       <div className="min-h-screen bg-white flex flex-col font-sans">
         {!isDashboard && <EcomNavbar />}
+        {/* Spacer compensates for fixed header on pages without a hero section */}
+        {needsSpacer && <div className="h-20" aria-hidden="true" />}
         <main className="flex-1">
           <Routes>
             {/* Public Routes */}
@@ -71,6 +83,7 @@ function AppContent() {
         </main>
         {!isDashboard && <EcomFooter />}
         {!isDashboard && <ChatWidget />}
+        {!isDashboard && <ScrollToTopButton />}
       </div>
     </CartProvider>
   )

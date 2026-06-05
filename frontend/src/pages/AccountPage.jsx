@@ -1,8 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
-import EcomNavbar from '../components/layout/EcomNavbar';
-import EcomFooter from '../components/layout/EcomFooter';
 
 const AccountPage = () => {
   const { user, loading } = useAuth();
@@ -21,11 +19,7 @@ const AccountPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="bg-slate-900">
-        <EcomNavbar />
-      </div>
-
-      <main className="flex-grow container mx-auto px-4 py-12 mt-16">
+      <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold text-slate-900 mb-8">Tài khoản của tôi</h1>
           
@@ -85,8 +79,6 @@ const AccountPage = () => {
           </div>
         </div>
       </main>
-
-      <EcomFooter />
     </div>
   );
 };

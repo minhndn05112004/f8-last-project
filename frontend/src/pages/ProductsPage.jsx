@@ -124,7 +124,7 @@ const ProductsPage = () => {
   return (
     <div className="bg-slate-50 min-h-screen pb-16">
       {/* Premium Header Banner */}
-      <div className="relative bg-slate-900 text-white overflow-hidden py-16 md:py-24">
+      <div className="relative bg-slate-900 text-white overflow-hidden pt-36 pb-16 md:pt-44 md:pb-24">
         {/* Decorative background grid and shapes */}
         <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]"></div>
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[400px] h-[400px] bg-red-600 rounded-full blur-[120px] opacity-20 pointer-events-none"></div>

@@ -4,7 +4,7 @@ const EcomFooter = () => {
   return (
     <footer className="bg-slate-900 text-slate-400 py-16">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Logo & Info */}
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 no-underline mb-6">
@@ -16,17 +16,6 @@ const EcomFooter = () => {
             <p className="text-sm leading-relaxed mb-6">
               Chuyên cung cấp thịt sạch nhập khẩu quốc tế. Chất lượng hàng đầu, giao hàng tận nơi.
             </p>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-white font-bold mb-6">Menu</h4>
-            <ul className="space-y-4 list-none p-0">
-              <li><Link to="/" className="text-slate-400 hover:text-white no-underline text-sm transition-colors">Trang chủ</Link></li>
-              <li><Link to="/products" className="text-slate-400 hover:text-white no-underline text-sm transition-colors">Sản phẩm</Link></li>
-              <li><Link to="/news" className="text-slate-400 hover:text-white no-underline text-sm transition-colors">Tin tức</Link></li>
-              <li><Link to="/about" className="text-slate-400 hover:text-white no-underline text-sm transition-colors">Về chúng tôi</Link></li>
-            </ul>
           </div>
 
           {/* Customer Care */}

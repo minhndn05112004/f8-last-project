@@ -76,7 +76,7 @@ const CheckoutPage = () => {
   if (loading || cartItems.length === 0) return null;
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-24 pb-16">
+    <div className="bg-slate-50 min-h-screen pt-6 pb-16">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="mb-8">
           <span className="text-xs font-semibold text-red-600 uppercase tracking-wider">Thanh toán</span>

@@ -57,7 +57,7 @@ const CartPage = () => {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-24 pb-16">
+    <div className="bg-slate-50 min-h-screen pt-6 pb-16">
       <div className="container mx-auto px-4">
         
         {/* Header */}

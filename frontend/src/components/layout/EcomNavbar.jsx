@@ -4,6 +4,12 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-hot-toast';
 
+// Routes that do NOT have a hero section — navbar must always show solid background
+const SOLID_NAV_ROUTES = [
+  '/cart', '/checkout', '/account', '/my-orders', '/login', '/register',
+  '/orders', '/payment', '/order-success',
+];
+
 const EcomNavbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -14,11 +20,15 @@ const EcomNavbar = () => {
   const { cartCount } = useCart();
   const dropdownRef = useRef(null);
 
+  // Force solid bg on non-hero pages
+  const isSolidNav = SOLID_NAV_ROUTES.some((r) => location.pathname.startsWith(r));
+  const solidStyle = isSolidNav || isScrolled;
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -53,12 +63,12 @@ const EcomNavbar = () => {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-3' : 'bg-transparent py-5'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${solidStyle ? 'bg-white shadow-md py-3' : 'bg-transparent py-5'}`}>
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 no-underline">
           <img src="https://cdn-icons-png.flaticon.com/512/6903/6903187.png" alt="logo" className="w-10 h-10 object-cover" />
-          <span className={`text-xl font-bold tracking-tight ${isScrolled ? 'text-slate-900' : 'text-white'}`}>
+          <span className={`text-xl font-bold tracking-tight ${solidStyle ? 'text-slate-900' : 'text-white'}`}>
             Anthony <span className="text-red-600">Shop</span>
           </span>
         </Link>
@@ -71,7 +81,7 @@ const EcomNavbar = () => {
               to={link.path}
               className={`font-medium no-underline transition-colors ${location.pathname === link.path
                 ? 'text-red-600'
-                : isScrolled ? 'text-slate-600 hover:text-red-600' : 'text-white/80 hover:text-white'
+                : solidStyle ? 'text-slate-600 hover:text-red-600' : 'text-white/80 hover:text-white'
                 }`}
             >
               {link.name}
@@ -87,7 +97,7 @@ const EcomNavbar = () => {
             {user ? (
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className={`flex items-center gap-2 p-2 rounded-full transition-colors ${isScrolled ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'}`}
+                className={`flex items-center gap-2 p-2 rounded-full transition-colors ${solidStyle ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'}`}
               >
                 {user.avatar ? (
                   <img src={user.avatar} alt="avatar" className="w-6 h-6 rounded-full object-cover" />
@@ -101,7 +111,7 @@ const EcomNavbar = () => {
             ) : (
               <Link
                 to="/login"
-                className={`inline-flex items-center justify-center p-2 rounded-full transition-colors no-underline ${isScrolled ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'}`}
+                className={`inline-flex items-center justify-center p-2 rounded-full transition-colors no-underline ${solidStyle ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'}`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -146,7 +156,7 @@ const EcomNavbar = () => {
                 </Link>
 
                 <Link
-                  to="/account/orders"
+                  to="/my-orders"
                   className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
                   onClick={() => setIsDropdownOpen(false)}
                 >
@@ -174,7 +184,7 @@ const EcomNavbar = () => {
                 navigate('/cart');
               }
             }}
-            className={`relative p-2 rounded-full transition-colors no-underline ${isScrolled ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'}`}
+            className={`relative p-2 rounded-full transition-colors no-underline ${solidStyle ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
@@ -186,45 +196,57 @@ const EcomNavbar = () => {
             )}
           </button>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Toggle — animated hamburger */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`md:hidden p-2 transition-colors ${isScrolled ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'} rounded-full`}
+            className={`md:hidden p-2 transition-colors ${solidStyle ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'} rounded-full`}
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-              </svg>
-            )}
+            <div className="w-6 h-5 flex flex-col justify-between">
+              <span
+                className={`block h-0.5 bg-current rounded-full transition-all duration-300 origin-center ${
+                  isMobileMenuOpen ? 'rotate-45 translate-y-[9px]' : ''
+                }`}
+              />
+              <span
+                className={`block h-0.5 bg-current rounded-full transition-all duration-300 ${
+                  isMobileMenuOpen ? 'opacity-0 scale-x-0' : ''
+                }`}
+              />
+              <span
+                className={`block h-0.5 bg-current rounded-full transition-all duration-300 origin-center ${
+                  isMobileMenuOpen ? '-rotate-45 -translate-y-[9px]' : ''
+                }`}
+              />
+            </div>
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Panel */}
-      {isMobileMenuOpen && (
-        <div className={`md:hidden absolute top-full left-0 right-0 shadow-lg border-t transition-all duration-300 ${isScrolled
+      {/* Mobile Menu Panel — animated slide */}
+      <div
+        className={`md:hidden absolute top-full left-0 right-0 shadow-lg border-t overflow-hidden transition-all duration-300 ease-in-out ${
+          isMobileMenuOpen ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+        } ${solidStyle
           ? 'bg-white border-slate-100 text-slate-800'
           : 'bg-slate-950 border-slate-800 text-white'
-          } py-4 px-6 flex flex-col gap-3 z-50`}>
+        }`}
+      >
+        <div className="py-4 px-6 flex flex-col gap-3">
           {navLinks.map((link) => (
             <Link
               key={link.path}
               to={link.path}
               className={`font-medium no-underline py-2 transition-colors ${location.pathname === link.path
                 ? 'text-red-600'
-                : isScrolled ? 'text-slate-600 hover:text-red-600' : 'text-white/80 hover:text-white'
+                : solidStyle ? 'text-slate-600 hover:text-red-600' : 'text-white/80 hover:text-white'
                 }`}
             >
               {link.name}
             </Link>
           ))}
         </div>
-      )}
+      </div>
     </nav>
   );
 };
