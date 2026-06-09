@@ -57,6 +57,7 @@ const register = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(data.password, 12);
     const verifyToken = crypto.randomUUID();
+    const verifyTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 giờ
 
     const user = await prisma.user.create({
       data: {
@@ -67,6 +68,7 @@ const register = async (req, res, next) => {
         address: data.address,
         isVerified: false,
         verifyToken,
+        verifyTokenExpiry,
       },
     });
 
@@ -95,10 +97,11 @@ const register = async (req, res, next) => {
 };
 
 const verifyEmail = async (req, res, next) => {
+  const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
   try {
     const { token } = req.query;
     if (!token) {
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=invalid_token`);
+      return res.redirect(`${FRONTEND_URL}/login?error=invalid_token`);
     }
 
     const user = await prisma.user.findFirst({
@@ -106,7 +109,12 @@ const verifyEmail = async (req, res, next) => {
     });
 
     if (!user) {
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=invalid_token`);
+      return res.redirect(`${FRONTEND_URL}/login?error=invalid_token`);
+    }
+
+    // Kiểm tra token có hết hạn chưa
+    if (user.verifyTokenExpiry && user.verifyTokenExpiry < new Date()) {
+      return res.redirect(`${FRONTEND_URL}/login?error=token_expired`);
     }
 
     await prisma.user.update({
@@ -114,10 +122,11 @@ const verifyEmail = async (req, res, next) => {
       data: {
         isVerified: true,
         verifyToken: null,
+        verifyTokenExpiry: null,
       },
     });
 
-    return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?verified=true`);
+    return res.redirect(`${FRONTEND_URL}/login?verified=true`);
   } catch (err) {
     next(err);
   }
@@ -140,10 +149,11 @@ const resendVerification = async (req, res, next) => {
     }
 
     const verifyToken = crypto.randomUUID();
+    const verifyTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 giờ
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { verifyToken },
+      data: { verifyToken, verifyTokenExpiry },
     });
 
     const emailSent = await sendVerificationEmail(user.email, verifyToken);

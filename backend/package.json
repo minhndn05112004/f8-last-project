@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "test": "jest --runInBand",
     "prisma:migrate": "npx prisma migrate dev --name ecommerce_init",
     "prisma:generate": "npx prisma generate",
     "prisma:studio": "npx prisma studio",
@@ -40,6 +41,7 @@
     "zod": "^3.25.4"
   },
   "devDependencies": {
+    "jest": "^30.4.2",
     "nodemon": "^3.1.14"
   },
   "prisma": {
