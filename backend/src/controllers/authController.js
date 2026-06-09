@@ -107,7 +107,8 @@ const verifyEmail = async (req, res, next) => {
     const user = await prisma.user.findFirst({
       where: { verifyToken: token },
     });
-
+    // TEMP DEBUG - xóa sau khi fix
+    console.log('[DEBUG verify]', { token, userFound: !!user, userId: user?.id });
     if (!user) {
       return res.redirect(`${FRONTEND_URL}/login?error=invalid_token`);
     }
@@ -245,7 +246,7 @@ const logout = async (req, res, next) => {
     // Attempt to get user from token via middleware if possible,
     // Or from the body if they pass the refresh token
     const { refreshToken } = req.body;
-    
+
     if (refreshToken) {
       await prisma.user.updateMany({
         where: { refreshToken },
