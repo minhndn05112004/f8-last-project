@@ -1,88 +1,61 @@
-const nodemailer = require('nodemailer');
-const dns = require('dns');
-const net = require('net');
+'use strict';
 
-// Debug credentials loading
-console.log('[Mail] GMAIL_USER:', process.env.GMAIL_USER);
-console.log('[Mail] GMAIL_APP_PASSWORD loaded:', !!process.env.GMAIL_APP_PASSWORD);
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // STARTTLS
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-  debug: true,
-  logger: true,
-  connectionTimeout: 30000,
-  greetingTimeout: 30000,
-  socketTimeout: 30000,
-  getSocket: (options, callback) => {
-    let resolved = false;
-    const timeoutDuration = options.connectionTimeout || 30000;
+// ─── Khởi tạo Resend client ────────────────────────────────────────────────
+if (!process.env.RESEND_API_KEY) {
+  console.warn('[Mail] WARNING: RESEND_API_KEY chưa được cấu hình trong .env!');
+}
 
-    let socket;
-    const timeoutId = setTimeout(() => {
-      if (resolved) return;
-      resolved = true;
-      if (socket) {
-        socket.destroy();
-      }
-      const err = new Error('Connection timeout');
-      err.code = 'ETIMEDOUT';
-      callback(err);
-    }, timeoutDuration);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-    dns.lookup(options.host, { family: 4 }, (dnsErr, address) => {
-      if (resolved) return;
-      if (dnsErr) {
-        resolved = true;
-        clearTimeout(timeoutId);
-        return callback(dnsErr);
-      }
+// Địa chỉ gửi (cần domain đã verify trên Resend dashboard)
+// Mặc định dùng onboarding@resend.dev cho môi trường test
+const FROM_ADDRESS =
+  process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 
-      const onConnect = () => {
-        if (resolved) return;
-        resolved = true;
-        clearTimeout(timeoutId);
-        socket.removeListener('error', onError);
-        callback(null, { connection: socket });
-      };
+console.log('[Mail] Resend initialized. FROM_ADDRESS:', FROM_ADDRESS);
 
-      const onError = (socketErr) => {
-        if (resolved) return;
-        resolved = true;
-        clearTimeout(timeoutId);
-        if (socket) {
-          socket.removeListener('connect', onConnect);
-          socket.destroy();
-        }
-        callback(socketErr);
-      };
-
-      socket = net.connect({
-        host: address,
-        port: options.port,
-        localAddress: options.localAddress,
-      });
-
-      socket.once('connect', onConnect);
-      socket.once('error', onError);
+// ─── Hàm gửi email tổng quát ───────────────────────────────────────────────
+/**
+ * Gửi email qua Resend API
+ * @param {{ to: string|string[], subject: string, html: string, from?: string }} options
+ * @returns {Promise<boolean>}
+ */
+const sendEmail = async ({ to, subject, html, from }) => {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: from || FROM_ADDRESS,
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html,
     });
-  },
-});
 
-// Enable transporter.verify() at startup
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('[Mail] SMTP connection verification failed on startup:', error);
-  } else {
-    console.log('[Mail] SMTP connection verification success. Server is ready to take messages');
+    if (error) {
+      console.error('[Mail Error] Resend trả về lỗi:', error);
+      return false;
+    }
+
+    console.log('[Mail] Email đã gửi thành công. ID:', data?.id);
+    return true;
+  } catch (err) {
+    console.error('[Mail Error] Gửi email thất bại:');
+    console.error('  message:', err.message);
+    console.error('  code   :', err.code || 'N/A');
+    if (err.stack) {
+      console.error('  stack  :', err.stack);
+    }
+    return false;
   }
-});
+};
 
+// ─── Gửi email xác minh tài khoản ─────────────────────────────────────────
+/**
+ * Gửi email xác minh đến người dùng mới đăng ký
+ * @param {string} toEmail  - Địa chỉ email người nhận
+ * @param {string} token    - Token xác minh
+ * @returns {Promise<boolean>}
+ */
 const sendVerificationEmail = async (toEmail, token) => {
   const backendVerifyLink = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/verify-email?token=${token}`;
 
@@ -110,29 +83,16 @@ const sendVerificationEmail = async (toEmail, token) => {
     </div>
   `;
 
-  const mailOptions = {
-    from: `"Anthony Shop" <${process.env.GMAIL_USER}>`,
+  console.log('[Mail] Đang gửi email xác minh qua Resend đến:', toEmail);
+
+  return sendEmail({
     to: toEmail,
     subject: 'Verify your email - Anthony Shop',
     html: htmlContent,
-  };
-
-  try {
-    console.log('[Mail] Sending verification email via Gmail SMTP to:', toEmail);
-    const info = await transporter.sendMail(mailOptions);
-    console.log('[Mail] Verification email sent successfully, messageId:', info.messageId);
-    return true;
-  } catch (err) {
-    console.error('[Mail Error] Gmail SMTP send failed:');
-    console.error('  message:', err.message);
-    console.error('  code   :', err.code);
-    if (err.stack) {
-      console.error('  stack  :', err.stack);
-    }
-    return false;
-  }
+  });
 };
 
 module.exports = {
+  sendEmail,
   sendVerificationEmail,
 };
