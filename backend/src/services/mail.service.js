@@ -12,7 +12,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Địa chỉ gửi (cần domain đã verify trên Resend dashboard)
 // Mặc định dùng onboarding@resend.dev cho môi trường test
 const FROM_ADDRESS =
-  process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+  process.env.RESEND_FROM_EMAIL || 'no-reply@ngodinhnhatminh.name.vn';
 
 console.log('[Mail] Resend initialized. FROM_ADDRESS:', FROM_ADDRESS);
 
