@@ -24,7 +24,11 @@ const LoginPage = () => {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
     if (params.get('error') === 'invalid_token') {
-      setError('Token xác thực không hợp lệ hoặc đã hết hạn.');
+      setError('Token xác thực không hợp lệ. Vui lòng gửi lại email xác thực.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    if (params.get('error') === 'token_expired') {
+      setError('Link xác thực đã hết hạn (24 giờ). Vui lòng gửi lại email xác thực.');
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -87,7 +91,12 @@ const LoginPage = () => {
                 <p className="text-sm text-red-700 font-medium">{error}</p>
               </div>
               
-              {error === 'Please verify your email before logging in' && (
+              {/* Hiện nút gửi lại khi: chưa verify, token hết hạn hoặc token không hợp lệ */}
+              {(
+                error === 'Please verify your email before logging in' ||
+                error.includes('Token xác thực') ||
+                error.includes('Link xác thực đã hết hạn')
+              ) && (
                 <button
                   type="button"
                   onClick={handleResendVerify}
