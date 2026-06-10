@@ -3,31 +3,49 @@ const {
   createOrder,
   getMyOrders,
   getAllOrders,
+  getOrderById,
+  getOrderByCode,
+  getPaymentStatus,
   updateOrderStatus,
   updatePaymentStatus,
-  getOrderById,
-  getPaymentStatus,
-  getOrderByCode,
+  cancelOrder,
+  assignShipper,
+  selfAssignShipper,
+  getShipperOrders,
+  getOrderStats,
+  getShippers,
 } = require('../controllers/orderController');
 const { authenticateToken, authorizeRoles } = require('../middlewares/auth');
 
 router.use(authenticateToken);
 
-// ─── User Routes ──────────────────────────────────────────────────────────────
-router.post('/', createOrder);
-router.get('/my-orders', getMyOrders);
+// ─── Customer Routes ──────────────────────────────────────────────────────────
+router.post('/',            createOrder);
+router.get('/my-orders',    getMyOrders);
 
 // ─── Specific routes before wildcard /:id ─────────────────────────────────────
-// These must come BEFORE /:id to avoid Express matching them as numeric IDs
-router.get('/code/:orderCode', getOrderByCode);
-router.get('/:orderCode/payment-status', getPaymentStatus);
+router.get('/code/:orderCode',             getOrderByCode);
+router.get('/:orderCode/payment-status',   getPaymentStatus);
 
-// Wildcard by numeric id — phải đặt CUỐI
-router.get('/:id', getOrderById);
+// ─── Admin / Staff: Quản lý đơn hàng ─────────────────────────────────────────
+router.get('/stats',    authorizeRoles('ADMIN'), getOrderStats);
+router.get('/shippers', authorizeRoles('ADMIN'), getShippers);
+router.get('/',         authorizeRoles('ADMIN', 'STAFF', 'SHIPPER'), getAllOrders);
 
-// ─── Staff / Admin Routes ─────────────────────────────────────────────────────
-router.get('/', authorizeRoles('ADMIN', 'STAFF'), getAllOrders);
-router.put('/:id/status', authorizeRoles('ADMIN', 'STAFF'), updateOrderStatus);
+router.put('/:id/status',         authorizeRoles('ADMIN', 'STAFF'), updateOrderStatus);
 router.put('/:id/payment-status', authorizeRoles('ADMIN', 'STAFF'), updatePaymentStatus);
+router.put('/:id/cancel',         authorizeRoles('ADMIN', 'STAFF'), cancelOrder);
+
+// ─── Admin: Phân công shipper ─────────────────────────────────────────────────
+router.put('/:id/assign-shipper', authorizeRoles('ADMIN'), assignShipper);
+
+// ─── Shipper Routes ───────────────────────────────────────────────────────────
+router.get('/shipper/my-orders',  authorizeRoles('SHIPPER', 'ADMIN'), getShipperOrders);
+router.put('/:id/self-assign',    authorizeRoles('SHIPPER'), selfAssignShipper);
+// Shipper cập nhật trạng thái (DELIVERING / DELIVERED) dùng chung updateOrderStatus
+router.put('/:id/shipper-status', authorizeRoles('SHIPPER'), updateOrderStatus);
+
+// ─── Wildcard by numeric id — phải đặt CUỐI ───────────────────────────────────
+router.get('/:id', getOrderById);
 
 module.exports = router;

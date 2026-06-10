@@ -10,6 +10,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import StaffDashboard from './pages/staff/StaffDashboard'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import ShipperDashboard from './pages/shipper/ShipperDashboard'
 import AccountPage from './pages/AccountPage'
 import CheckoutPage from './pages/CheckoutPage'
 import PaymentPage from './pages/PaymentPage'
@@ -32,7 +33,7 @@ const HERO_ROUTES = ['/', '/products', '/news', '/about'];
 function AppContent() {
   const location = useLocation()
   const { user } = useAuth()
-  const isDashboard = location.pathname.startsWith('/staff') || location.pathname.startsWith('/admin')
+  const isDashboard = location.pathname.startsWith('/staff') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/shipper')
 
   // Non-hero pages need a spacer div so content isn't hidden behind fixed header
   const isHeroRoute =
@@ -73,6 +74,11 @@ function AppContent() {
             {/* Staff Routes */}
             <Route element={<RoleProtectedRoute roles={['STAFF', 'ADMIN']} />}>
               <Route path="/staff/dashboard" element={<StaffDashboard />} />
+            </Route>
+
+            {/* Shipper Routes */}
+            <Route element={<RoleProtectedRoute roles={['SHIPPER', 'ADMIN']} />}>
+              <Route path="/shipper/dashboard" element={<ShipperDashboard />} />
             </Route>
 
             {/* Admin Routes */}

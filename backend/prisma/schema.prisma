@@ -29,16 +29,18 @@ enum PaymentMethod {
 enum PaymentStatus {
   PENDING
   PAID
+  REFUNDED
   FAILED
 }
 
 enum OrderStatus {
-  PENDING
-  PROCESSING
-  SHIPPING
-  DELIVERED
-  COMPLETED
-  CANCELLED
+  PENDING_CONFIRMATION  // Chờ xác nhận
+  CONFIRMED             // Đã xác nhận
+  PREPARING             // Đang chuẩn bị hàng
+  READY_FOR_DELIVERY    // Sẵn sàng giao (nội bộ)
+  DELIVERING            // Đang giao
+  DELIVERED             // Đã giao
+  CANCELLED             // Đã hủy
 }
 
 // ─── MODELS ───────────────────────────────────────────────────────────────────
@@ -47,11 +49,13 @@ model User {
   id        Int      @id @default(autoincrement())
   fullName  String
   email     String   @unique
+  username  String?  @unique
+  branch    String?
   password  String
   phone     String?
   avatar    String?
   address   String?
-  role      String   @default("USER") // ADMIN | STAFF | USER
+  role      String   @default("USER") // ADMIN | STAFF | SHIPPER | USER
   isOnline           Boolean   @default(false)
   isActive           Boolean   @default(true)
   isVerified         Boolean   @default(false)
@@ -73,6 +77,13 @@ model User {
   supportRequests SupportRequest[] @relation("UserRequests")
   assignedSupport SupportRequest[] @relation("StaffRequests")
   messages        Message[]
+
+  // Shipper assignments
+  assignedOrders  Order[]          @relation("ShipperOrders")
+
+  // Order status log (ai thay đổi)
+  orderStatusLogs OrderStatusLog[]
+
   @@map("user")
 }
 
@@ -158,24 +169,39 @@ model CartItem {
 // ─── ORDER ─────────────────────────────────────────────────────────@───────────
 
 model Order {
-  id              Int                  @id @default(autoincrement())
-  orderCode       String               @unique
+  id              Int           @id @default(autoincrement())
+  orderCode       String        @unique
   totalAmount     Float
-  paymentMethod   PaymentMethod        @default(CASH)
-  paymentStatus   PaymentStatus        @default(PENDING)
-  orderStatus     OrderStatus          @default(PENDING)
+  paymentMethod   PaymentMethod @default(CASH)
+  paymentStatus   PaymentStatus @default(PENDING)
+  orderStatus     OrderStatus   @default(PENDING_CONFIRMATION)
   shippingAddress String
   customerPhone   String
   customerEmail   String
-  note            String?              @db.Text
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
-  paidAt          DateTime?
+  note            String?       @db.Text
+  cancelReason    String?       @db.Text
 
+  // ─── Timestamps lifecycle ─────────────────────────────────────────
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  paidAt       DateTime?
+  confirmedAt  DateTime?
+  preparedAt   DateTime?
+  shippedAt    DateTime?
+  deliveredAt  DateTime?
+  cancelledAt  DateTime?
+
+  // ─── Relations ───────────────────────────────────────────────────
   userId              Int
   user                User                 @relation(fields: [userId], references: [id])
+
+  assignedShipperId   Int?
+  assignedShipper     User?                @relation("ShipperOrders", fields: [assignedShipperId], references: [id])
+
   orderItems          OrderItem[]
   paymentTransactions PaymentTransaction[]
+  statusLogs          OrderStatusLog[]
+
   @@map("order")
 }
 
@@ -289,4 +315,24 @@ model PaymentTransaction {
 
   order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   @@map("paymenttransaction")
+}
+
+// ─── ORDER STATUS AUDIT LOG ───────────────────────────────────────────────────
+
+model OrderStatusLog {
+  id          Int          @id @default(autoincrement())
+  orderId     Int
+  order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Dùng enum để đảm bảo type-safety. fromStatus nullable cho lần tạo đầu tiên.
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+
+  changedById Int
+  changedBy   User         @relation(fields: [changedById], references: [id])
+
+  note        String?      @db.Text
+  createdAt   DateTime     @default(now())
+
+  @@map("orderstatuslog")
 }

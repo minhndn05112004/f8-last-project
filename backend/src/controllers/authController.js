@@ -17,7 +17,7 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email format'),
+  email: z.string().min(1, 'Email or username is required'),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -172,7 +172,14 @@ const login = async (req, res, next) => {
   try {
     const data = loginSchema.parse(req.body);
 
-    const user = await prisma.user.findUnique({ where: { email: data.email } });
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: data.email },
+          { username: data.email }
+        ]
+      }
+    });
     if (!user) {
       return errorResponse(res, 'Invalid email or password', 401);
     }

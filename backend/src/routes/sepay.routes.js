@@ -169,13 +169,14 @@ const handleSePayWebhook = async (req, res) => {
 
     // ── Bước 8: Cập nhật đơn hàng & ghi PaymentTransaction (atomic) ──────────
     const result = await prisma.$transaction(async (tx) => {
-      // Cập nhật trạng thái đơn hàng thành PAID
+      // Chỉ cập nhật paymentStatus → PAID và paidAt.
+      // orderStatus GIỮ NGUYÊN (PENDING_CONFIRMATION) — Staff sẽ xác nhận thủ công.
       const updatedOrder = await tx.order.update({
         where: { id: order.id },
         data: {
-          paymentStatus: 'PAID',       // đã thanh toán
-          orderStatus:   'PROCESSING', // chuyển sang xử lý
-          paidAt:        new Date(),   // ghi nhận thời điểm thanh toán
+          paymentStatus: 'PAID',
+          paidAt:        new Date(),
+          // KHÔNG tự chuyển orderStatus — quy trình nghiệp vụ yêu cầu Staff xác nhận
         },
       });
 
@@ -183,12 +184,10 @@ const handleSePayWebhook = async (req, res) => {
       const paymentTx = await tx.paymentTransaction.create({
         data: {
           orderId:       order.id,
-          // Dùng ID SePay hoặc referenceCode để đảm bảo idempotency sau này
           transactionId: transactionId || `SEPAY_${Date.now()}`,
           amount:        receivedAmount,
           gateway:       gateway || 'N/A',
           content:       content  || code || '',
-          // Lưu toàn bộ raw payload để debug hoặc audit sau
           rawData:       JSON.stringify(req.body),
         },
       });
@@ -196,7 +195,7 @@ const handleSePayWebhook = async (req, res) => {
       return { updatedOrder, paymentTx };
     });
 
-    console.log(`[SePay Webhook] ✅ Đơn hàng ${orderCode} → PAID & PROCESSING`);
+    console.log(`[SePay Webhook] ✅ Đơn hàng ${orderCode} → paymentStatus=PAID (orderStatus giữ nguyên để Staff xác nhận)`);
     console.log(`[SePay Webhook]    Gateway: ${gateway} | Amount: ${receivedAmount} VND | TxID: ${transactionId}`);
 
     // ── Bước 9: Emit socket realtime (nếu có io) ─────────────────────────────

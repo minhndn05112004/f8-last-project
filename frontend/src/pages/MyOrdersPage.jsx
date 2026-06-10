@@ -29,13 +29,14 @@ const MyOrdersPage = () => {
   };
   const getOrderStatusBadge = (status) => {
     switch (status) {
-      case 'PENDING': return <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-bold">Chờ thanh toán</span>;
-      case 'PROCESSING': return <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">Đang xử lý</span>;
-      case 'SHIPPING': return <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-bold">Đang giao hàng</span>;
+      case 'PENDING_CONFIRMATION': return <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-bold">Chờ xác nhận</span>;
+      case 'CONFIRMED': return <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">Đã xác nhận</span>;
+      case 'PREPARING': return <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-xs font-bold">Đang chuẩn bị</span>;
+      case 'READY_FOR_DELIVERY': return <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-xs font-bold">Chờ giao hàng</span>;
+      case 'DELIVERING': return <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">Đang giao hàng</span>;
       case 'DELIVERED': return <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold">Đã giao hàng</span>;
-      case 'COMPLETED': return <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold">Hoàn thành</span>;
       case 'CANCELLED': return <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Đã hủy</span>;
-      default: return null;
+      default: return <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-bold">{status}</span>;
     }
   };
 
@@ -43,8 +44,9 @@ const MyOrdersPage = () => {
     switch (status) {
       case 'PENDING': return <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-bold">Chưa thanh toán</span>;
       case 'PAID': return <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold">Đã thanh toán</span>;
+      case 'REFUNDED': return <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-bold">Đã hoàn tiền</span>;
       case 'FAILED': return <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Thanh toán lỗi</span>;
-      default: return null;
+      default: return <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-bold">{status}</span>;
     }
   };
 

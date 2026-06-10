@@ -147,6 +147,16 @@ const EcomNavbar = () => {
                   </Link>
                 )}
 
+                {user.role === 'SHIPPER' && (
+                  <Link
+                    to="/shipper/dashboard"
+                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Bảng điều khiển Shipper
+                  </Link>
+                )}
+
                 <Link
                   to="/account"
                   className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
@@ -155,13 +165,15 @@ const EcomNavbar = () => {
                   Chi tiết tài khoản
                 </Link>
 
-                <Link
-                  to="/my-orders"
-                  className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
-                  onClick={() => setIsDropdownOpen(false)}
-                >
-                  Đơn hàng của tôi
-                </Link>
+                {user.role !== 'SHIPPER' && (
+                  <Link
+                    to="/my-orders"
+                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 no-underline transition-colors"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Đơn hàng của tôi
+                  </Link>
+                )}
 
                 <div className="border-t border-slate-100 mt-1"></div>
 

@@ -41,6 +41,7 @@ const LoginPage = () => {
       const user = await login(email, password);
       if (user.role === 'ADMIN') navigate('/admin/dashboard');
       else if (user.role === 'STAFF') navigate('/staff/dashboard');
+      else if (user.role === 'SHIPPER') navigate('/shipper/dashboard');
       else navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
@@ -123,16 +124,16 @@ const LoginPage = () => {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Email hoặc Tên tài khoản</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                   <Mail size={18} />
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   required
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200 outline-none"
-                  placeholder="name@example.com"
+                  placeholder="Nhập email hoặc tên tài khoản..."
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
