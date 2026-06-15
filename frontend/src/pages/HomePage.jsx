@@ -328,22 +328,43 @@ const Partners = () => {
     { name: 'KFC', src: 'https://upload.wikimedia.org/wikipedia/sco/thumb/b/bf/KFC_logo.svg/1280px-KFC_logo.svg.png' },
     { name: 'LOTTE', src: 'https://upload.wikimedia.org/wikipedia/vi/f/fd/Lotteria_logo.png?utm_source=vi.wikipedia.org&utm_campaign=index&utm_content=original' },
     { name: 'Jollibee', src: 'https://1000logos.net/wp-content/uploads/2019/03/jollibee-logo-png.png' },
-
+    { name: 'McDonald', src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/1280px-McDonald%27s_Golden_Arches.svg.png' },
+    { name: 'Texas Chicken', src: 'https://upload.wikimedia.org/wikipedia/commons/e/ea/Texas_Chicken_logo.png' },
+    { name: 'Popeyes', src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Popeyes_logo.svg/1280px-Popeyes_logo.svg.png' },
+    { name: 'Burger King', src: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Burger_King_2020.svg' },
+    { name: 'DQ', src: 'https://1000logos.net/wp-content/uploads/2020/12/Dairy-Queen-Logo.png' },
+    { name: 'PIZZA HUT', src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Pizza_hut_logo_international.svg/1280px-Pizza_hut_logo_international.svg.png' },
   ]
 
   return (
-    <section className="py-24 bg-slate-50 border-t border-slate-100">
-      <div className="container text-center">
-        <h3 className="text-xl font-bold mb-12 text-slate-800">Các Đối Tác Của Anthony Shop</h3>
-        <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24">
-          {logos.map((logo, idx) => (
-            <img
-              key={idx}
-              src={logo.src}
-              alt={logo.name}
-              className="h-12 md:h-16 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
-            />
-          ))}
+    <section className="py-16 bg-slate-50 border-t border-slate-100 overflow-hidden">
+      <div className="container text-center mb-10">
+        <h3 className="text-xl font-bold text-slate-800">Các Đối Tác Của Anthony Shop</h3>
+      </div>
+      <div className="relative w-full overflow-hidden py-4 flex">
+        <div className="flex animate-marquee">
+          {/* First group of logos */}
+          <div className="flex gap-16 md:gap-24 items-center pr-16 md:pr-24 flex-shrink-0">
+            {logos.map((logo, idx) => (
+              <img
+                key={`first-${idx}`}
+                src={logo.src}
+                alt={logo.name}
+                className="h-16 md:h-20 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100 flex-shrink-0"
+              />
+            ))}
+          </div>
+          {/* Second group of logos (exact clone with matching padding for seamless looping) */}
+          <div className="flex gap-16 md:gap-24 items-center pr-16 md:pr-24 flex-shrink-0">
+            {logos.map((logo, idx) => (
+              <img
+                key={`second-${idx}`}
+                src={logo.src}
+                alt={logo.name}
+                className="h-16 md:h-20 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100 flex-shrink-0"
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
