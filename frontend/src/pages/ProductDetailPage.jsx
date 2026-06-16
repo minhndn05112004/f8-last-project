@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import api from '../services/axios';
 import { toast } from 'react-hot-toast';
+import { getImageUrl } from '../utils/imageUrl';
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -30,7 +31,7 @@ const ProductDetailPage = () => {
         // Set active image
         const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80';
         const rawImages = [prod.thumbnail, ...(prod.images || [])].filter(Boolean);
-        const allImages = rawImages.map(img => img.startsWith('http') ? img : `http://localhost:5000${img}`);
+        const allImages = rawImages.map(img => getImageUrl(img));
         setActiveImage(allImages[0] || fallbackImg);
         
         // Fetch related products
@@ -132,7 +133,7 @@ const ProductDetailPage = () => {
   if (!product) return null;
 
   const rawImages = [product.thumbnail, ...(product.images || [])].filter(Boolean);
-  const allImages = rawImages.map(img => img.startsWith('http') ? img : `http://localhost:5000${img}`);
+  const allImages = rawImages.map(img => getImageUrl(img));
   const onSale = product.salePrice && product.salePrice < product.price;
   const discountPercent = onSale ? Math.round(((product.price - product.salePrice) / product.price) * 100) : 0;
 
@@ -354,8 +355,8 @@ const ProductDetailPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 {relatedProducts.map((p) => {
                   const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80';
-                  const rawImage = p.images?.[0] || p.thumbnail || fallbackImg;
-                  const pImage = rawImage.startsWith('http') ? rawImage : `http://localhost:5000${rawImage}`;
+                  const rawImage = p.images?.[0] || p.thumbnail || null;
+                  const pImage = getImageUrl(rawImage, fallbackImg);
                   const pOnSale = p.salePrice && p.salePrice < p.price;
 
                   return (

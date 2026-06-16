@@ -4,6 +4,7 @@ import { Calendar, User, Eye, ThumbsUp, ThumbsDown, MessageSquare, Trash2, Arrow
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/axios';
+import { getImageUrl } from '../utils/imageUrl';
 
 const NewsDetailPage = () => {
   const { slug } = useParams();
@@ -174,11 +175,7 @@ const NewsDetailPage = () => {
         {/* Article Banner */}
         <div className="relative rounded-3xl overflow-hidden mb-10 h-64 md:h-[420px] bg-slate-900 border border-slate-800/80 shadow-2xl">
           <img
-            src={
-              article.thumbnail
-                ? (article.thumbnail.startsWith('http') ? article.thumbnail : `http://localhost:5000${article.thumbnail}`)
-                : 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop'
-            }
+            src={getImageUrl(article.thumbnail, 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop')}
             alt={article.title}
             className="w-full h-full object-cover"
             onError={(e) => {

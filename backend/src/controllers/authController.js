@@ -307,7 +307,9 @@ const updateProfile = async (req, res, next) => {
     if (fullName) updateData.fullName = fullName;
     if (phone !== undefined) updateData.phone = phone;
     if (address !== undefined) updateData.address = address;
-    if (req.file) updateData.avatar = `/${req.file.path.replace(/\\\\/g, '/')}`;
+    if (req.file) {
+      updateData.avatar = req.file.path.startsWith('http') ? req.file.path : `/${req.file.path.replace(/\\/g, '/')}`;
+    }
 
     const user = await prisma.user.update({
       where: { id: req.user.id },

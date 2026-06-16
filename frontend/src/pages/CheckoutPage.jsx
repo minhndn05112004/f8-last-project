@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import axios from '../services/axios';
+import { getImageUrl } from '../utils/imageUrl';
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -241,8 +242,7 @@ const CheckoutPage = () => {
               <div className="space-y-4 max-h-60 overflow-y-auto pr-2 mb-6 custom-scrollbar">
                 {cartItems.map(item => {
                   const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80';
-                  const rawImage = item.product.thumbnail || fallbackImg;
-                  const itemImage = rawImage.startsWith('http') ? rawImage : `http://localhost:5000${rawImage}`;
+                  const itemImage = getImageUrl(item.product.thumbnail, fallbackImg);
                   return (
                     <div key={item.id} className="flex gap-4">
                       <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-100 flex-shrink-0 bg-slate-50">

@@ -162,7 +162,9 @@ const createNews = async (req, res, next) => {
     if (existing) slug = `${slug}-${Date.now()}`;
 
     let thumbnail = null;
-    if (req.file) thumbnail = `/uploads/news/${req.file.filename}`;
+    if (req.file) {
+      thumbnail = req.file.path.startsWith('http') ? req.file.path : `/uploads/news/${req.file.filename}`;
+    }
 
     const article = await prisma.news.create({
       data: { title, slug, excerpt: excerpt || null, content, thumbnail, isPublished, createdById: req.user.id },
@@ -201,7 +203,9 @@ const updateNews = async (req, res, next) => {
     if (req.body.isPublished !== undefined && parsed.isPublished === undefined) {
       updateData.isPublished = parsePublished(req.body.isPublished);
     }
-    if (req.file) updateData.thumbnail = `/uploads/news/${req.file.filename}`;
+    if (req.file) {
+      updateData.thumbnail = req.file.path.startsWith('http') ? req.file.path : `/uploads/news/${req.file.filename}`;
+    }
 
     const article = await prisma.news.update({
       where: { id: parseInt(id) },

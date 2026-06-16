@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Eye, FileText, CheckCircle, EyeOff, Upload, X, Save, Search, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../../services/axios';
+import { getImageUrl } from '../../utils/imageUrl';
 
 const StaffNewsPage = () => {
   const [articles, setArticles] = useState([]);
@@ -68,7 +69,7 @@ const StaffNewsPage = () => {
     setContent(art.content || '');
     setIsPublished(art.isPublished || false);
     setThumbnailFile(null);
-    setThumbnailPreview(art.thumbnail ? `http://localhost:5000${art.thumbnail}` : '');
+    setThumbnailPreview(getImageUrl(art.thumbnail));
     setEditingId(art.id);
     setPreviewMode(false);
     setIsModalOpen(true);
@@ -215,7 +216,7 @@ const StaffNewsPage = () => {
                       <div className="w-16 h-10 rounded-lg overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center">
                         {art.thumbnail ? (
                           <img
-                            src={`http://localhost:5000${art.thumbnail}`}
+                            src={getImageUrl(art.thumbnail, 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=150&auto=format&fit=crop')}
                             alt="thumb"
                             className="w-full h-full object-cover"
                             onError={(e) => {

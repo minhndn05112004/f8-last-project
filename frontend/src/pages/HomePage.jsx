@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import api from '../services/axios'
+import { getImageUrl } from '../utils/imageUrl'
 
 const Hero = () => (
   <section className="relative h-[85vh] flex items-center justify-center overflow-hidden bg-slate-950">
@@ -47,6 +48,87 @@ const Hero = () => (
       <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
         <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" className="shape-fill"></path>
       </svg>
+    </div>
+  </section>
+)
+
+const AboutPreview = () => (
+  <section className="py-20 bg-white border-b border-slate-100">
+    <div className="container">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+        {/* Text side */}
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+        >
+          <span className="text-red-600 font-bold tracking-widest text-xs uppercase block mb-3">
+            Về chúng tôi
+          </span>
+          <h2 className="text-3xl md:text-4xl font-black text-slate-950 leading-tight mb-4">
+            Tinh Hoa Ẩm Thực Nhập Khẩu<br />Cho Bữa Ăn Trọn Vẹn
+          </h2>
+          <div className="w-12 h-1 bg-red-600 mb-6"></div>
+          <p className="text-slate-600 text-sm leading-relaxed mb-4">
+            Được thành lập với khát vọng mang đến nguồn thực phẩm cao cấp cho thị trường Việt Nam,{" "}
+            <strong>Anthony Shop</strong> tự hào là đối tác phân phối thịt nhập khẩu uy tín từ các
+            thương hiệu chăn nuôi danh giá bậc nhất thế giới.
+          </p>
+          <p className="text-slate-600 text-sm leading-relaxed mb-4">
+            Mỗi sản phẩm tại cửa hàng của chúng tôi đều trải qua quy trình đánh giá và bảo quản
+            nghiêm ngặt bằng công nghệ cấp đông sâu Châu Âu hiện đại. Điều này giữ nguyên cấu trúc
+            protein, vị ngọt tự nhiên và dinh dưỡng dồi dào nguyên bản của miếng thịt.
+          </p>
+          <p className="text-slate-600 text-sm leading-relaxed mb-8">
+            Chúng tôi không chỉ bán thịt sạch, chúng tôi mang tới một phong cách sống ẩm thực
+            thượng lưu — nơi sự an toàn, chất lượng và trải nghiệm của khách hàng luôn được đặt ở
+            vị thế độc tôn.
+          </p>
+
+          {/* Stats row */}
+          <div className="flex gap-10 mb-10">
+            <div className="border-l-4 border-red-600 pl-4">
+              <div className="text-2xl font-black text-slate-900">100%</div>
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Chất lượng nhập khẩu</div>
+            </div>
+            <div className="border-l-4 border-red-600 pl-4">
+              <div className="text-2xl font-black text-slate-900">Giao nhanh</div>
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Trong vòng 2 giờ</div>
+            </div>
+          </div>
+
+          <Link
+            to="/about"
+            className="inline-flex items-center gap-2 bg-red-700 hover:bg-red-800 text-white font-bold px-8 py-3 rounded-lg transition-all no-underline shadow-md hover:shadow-lg"
+          >
+            Xem chi tiết
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </Link>
+        </motion.div>
+
+        {/* Image side */}
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="relative"
+        >
+          <div className="rounded-2xl overflow-hidden shadow-2xl">
+            <img
+              src="https://cdn2.fptshop.com.vn/unsafe/Uploads/images/tin-tuc/185043/Originals/thit-de-duoc-bao-lau-trong-tu-lanh-7.png"
+              alt="Anthony Shop - Thịt nhập khẩu cao cấp"
+              className="w-full h-[420px] object-cover"
+            />
+          </div>
+          {/* Decorative accent */}
+          <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-red-600/10 rounded-2xl -z-10"></div>
+          <div className="absolute -top-4 -left-4 w-20 h-20 bg-slate-200/60 rounded-2xl -z-10"></div>
+        </motion.div>
+      </div>
     </div>
   </section>
 )
@@ -110,9 +192,7 @@ const Introduction = () => {
 
 const ProductCard = ({ product }) => {
   const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop';
-  const image = product.thumbnail
-    ? (product.thumbnail.startsWith('http') ? product.thumbnail : `http://localhost:5000${product.thumbnail}`)
-    : fallbackImg;
+  const image = getImageUrl(product.thumbnail, fallbackImg);
 
   const hasDiscount = product.salePrice && product.salePrice < product.price;
 
@@ -286,11 +366,7 @@ const NewsSection = () => {
             >
               <Link to={`/news/${news.slug}`} className="block relative h-48 overflow-hidden bg-slate-100">
                 <img
-                  src={
-                    news.thumbnail
-                      ? (news.thumbnail.startsWith('http') ? news.thumbnail : `http://localhost:5000${news.thumbnail}`)
-                      : 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop'
-                  }
+                  src={getImageUrl(news.thumbnail, 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop')}
                   alt={news.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   onError={(e) => {
@@ -375,6 +451,7 @@ const HomePage = () => {
   return (
     <div className="flex flex-col">
       <Hero />
+      <AboutPreview />
       <Introduction />
       <FeaturedProducts />
       <NewsSection />

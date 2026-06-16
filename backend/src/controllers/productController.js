@@ -169,10 +169,11 @@ const createProduct = async (req, res, next) => {
     let images = [];
     if (req.files) {
       if (req.files['thumbnail']?.[0]) {
-        thumbnail = `/${req.files['thumbnail'][0].path.replace(/\\/g, '/')}`;
+        const p = req.files['thumbnail'][0].path;
+        thumbnail = p.startsWith('http') ? p : `/${p.replace(/\\/g, '/')}`;
       }
       if (req.files['images']) {
-        images = req.files['images'].map((f) => `/${f.path.replace(/\\/g, '/')}`);
+        images = req.files['images'].map((f) => f.path.startsWith('http') ? f.path : `/${f.path.replace(/\\/g, '/')}`);
       }
     }
 
@@ -214,11 +215,12 @@ const updateProduct = async (req, res, next) => {
 
     if (req.files) {
       if (req.files['thumbnail']?.[0]) {
-        productData.thumbnail = `/${req.files['thumbnail'][0].path.replace(/\\/g, '/')}`;
+        const p = req.files['thumbnail'][0].path;
+        productData.thumbnail = p.startsWith('http') ? p : `/${p.replace(/\\/g, '/')}`;
       }
       if (req.files['images']) {
         productData.images = JSON.stringify(
-          req.files['images'].map((f) => `/${f.path.replace(/\\/g, '/')}`)
+          req.files['images'].map((f) => f.path.startsWith('http') ? f.path : `/${f.path.replace(/\\/g, '/')}`)
         );
       }
     }

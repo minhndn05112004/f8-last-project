@@ -4,6 +4,7 @@ import axios from '../services/axios';
 import { getSocket } from '../services/socketService';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle, Clock, Package, Truck, MapPin, Phone, XCircle } from 'lucide-react';
+import { getImageUrl } from '../utils/imageUrl';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -297,8 +298,7 @@ const OrderTrackingPage = () => {
             </h3>
             <div className="space-y-4">
               {order.orderItems.map((item) => {
-                const raw   = item.product.thumbnail || fallbackImg;
-                const img   = raw.startsWith('http') ? raw : `http://localhost:5000${raw}`;
+                const img = getImageUrl(item.product.thumbnail, fallbackImg);
                 return (
                   <div key={item.id} className="flex gap-4">
                     <div className="w-16 h-16 rounded-xl overflow-hidden border border-slate-100 flex-shrink-0 bg-slate-50">

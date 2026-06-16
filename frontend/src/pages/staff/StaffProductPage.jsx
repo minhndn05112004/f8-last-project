@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Eye, FileText, CheckCircle, EyeOff, Upload, X, Save, Search, AlertCircle, Package, Tag, Power } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../../services/axios';
+import { getImageUrl } from '../../utils/imageUrl';
 
 const StaffProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -99,11 +100,11 @@ const StaffProductPage = () => {
     setIsPublished(prod.isPublished || false);
     setSelectedTagIds(prod.tags ? prod.tags.map((t) => t.id) : []);
     setThumbnailFile(null);
-    setThumbnailPreview(prod.thumbnail ? (prod.thumbnail.startsWith('/') ? `http://localhost:5000${prod.thumbnail}` : prod.thumbnail) : '');
+    setThumbnailPreview(getImageUrl(prod.thumbnail));
     setImageFiles([]);
     // Setup existing images previews
     const existingImgs = prod.images || [];
-    setImagePreviews(existingImgs.map(img => img.startsWith('/') ? `http://localhost:5000${img}` : img));
+    setImagePreviews(existingImgs.map(img => getImageUrl(img)));
     setEditingId(prod.id);
     setIsModalOpen(true);
   };
@@ -334,7 +335,7 @@ const StaffProductPage = () => {
               <tbody className="divide-y divide-slate-800/60">
                 {filteredProducts.map((prod) => {
                   const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=150&auto=format&fit=crop&q=80';
-                  const thumbnailSrc = prod.thumbnail ? (prod.thumbnail.startsWith('/') ? `http://localhost:5000${prod.thumbnail}` : prod.thumbnail) : fallbackImg;
+                  const thumbnailSrc = getImageUrl(prod.thumbnail, fallbackImg);
                   const hasDiscount = prod.salePrice && prod.salePrice < prod.price;
 
                   return (

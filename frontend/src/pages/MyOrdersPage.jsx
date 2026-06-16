@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../services/axios';
 import { useAuth } from '../context/AuthContext';
+import { getImageUrl } from '../utils/imageUrl';
 
 const MyOrdersPage = () => {
   const { user } = useAuth();
@@ -98,8 +99,7 @@ const MyOrdersPage = () => {
                 <div className="p-4 md:px-6">
                   {order.orderItems.slice(0, 2).map((item, idx) => {
                     const fallbackImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80';
-                    const rawImage = item.product.thumbnail || fallbackImg;
-                    const itemImage = rawImage.startsWith('http') ? rawImage : `http://localhost:5000${rawImage}`;
+                    const itemImage = getImageUrl(item.product.thumbnail, fallbackImg);
                     return (
                       <div key={item.id} className={`flex gap-4 py-3 ${idx > 0 ? 'border-t border-slate-50' : ''}`}>
                         <img src={itemImage} alt={item.product.name} className="w-16 h-16 rounded-lg object-cover bg-slate-100" />

@@ -1,26 +1,19 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
 
-// Ensure upload directories exist
-const ensureDir = (dir) => {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-};
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let folder = 'uploads/misc';
-    if (req.baseUrl.includes('products')) folder = 'uploads/products';
-    if (req.baseUrl.includes('auth') || req.baseUrl.includes('users')) folder = 'uploads/avatars';
-    if (req.baseUrl.includes('news')) folder = 'uploads/news';
-
-    ensureDir(folder);
-    cb(null, folder);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: (req, file) => {
+      let folderName = 'misc';
+      if (req.baseUrl.includes('products')) folderName = 'products';
+      if (req.baseUrl.includes('auth') || req.baseUrl.includes('users')) folderName = 'avatars';
+      if (req.baseUrl.includes('news')) folderName = 'news';
+      return `meatshop/${folderName}`;
+    },
+    allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'webp'],
   },
 });
 

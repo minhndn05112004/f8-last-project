@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Calendar, MessageSquare, ThumbsUp, Eye, User, ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '../services/axios';
+import { getImageUrl } from '../utils/imageUrl';
 
 const NewsPage = () => {
   const [newsList, setNewsList] = useState([]);
@@ -141,11 +142,7 @@ const NewsPage = () => {
                   {/* Thumbnail */}
                   <Link to={`/news/${news.slug}`} className="block relative h-52 overflow-hidden bg-slate-950">
                     <img
-                      src={
-                        news.thumbnail
-                          ? (news.thumbnail.startsWith('http') ? news.thumbnail : `http://localhost:5000${news.thumbnail}`)
-                          : 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop'
-                      }
+                      src={getImageUrl(news.thumbnail, 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop')}
                       alt={news.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       onError={(e) => {
