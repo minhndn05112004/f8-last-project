@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 // Routes that do NOT have a hero section — navbar must always show solid background
 const SOLID_NAV_ROUTES = [
   '/cart', '/checkout', '/account', '/my-orders', '/login', '/register',
-  '/orders', '/payment', '/order-success',
+  '/orders', '/payment', '/order-success', '/products/',
 ];
 
 const EcomNavbar = () => {

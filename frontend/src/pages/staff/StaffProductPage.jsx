@@ -691,7 +691,7 @@ const StaffProductPage = () => {
                   <input
                     type="checkbox"
                     id="publishCheck"
-                    className="w-4.5 h-4.5 bg-slate-955 border border-slate-800 rounded focus:ring-red-650 text-red-700 cursor-pointer"
+                    className="w-4.5 h-4.5 bg-slate-950 border border-slate-800 rounded focus:ring-red-650 text-red-700 cursor-pointer"
                     checked={isPublished}
                     onChange={(e) => setIsPublished(e.target.checked)}
                   />

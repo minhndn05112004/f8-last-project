@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import { getSocket } from '../../services/socketService';
 import {
   Truck, Package, CheckCircle, MapPin, Phone,
-  User, RefreshCw, Clock, LogOut, ExternalLink, Star
+  User, RefreshCw, Clock, LogOut, ExternalLink, Star, Menu
 } from 'lucide-react';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -162,6 +162,7 @@ const ShipperDashboard = () => {
   const [history, setHistory]     = useState([]);
   const [loading, setLoading]     = useState(true);
   const [loadingId, setLoadingId] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -244,9 +245,17 @@ const ShipperDashboard = () => {
   const activeOrders = activeTab === 'mine' ? myOrders : activeTab === 'available' ? available : history;
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
+    <div className="flex h-screen bg-slate-50 font-sans overflow-hidden relative">
+      {/* Backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-56 bg-slate-900 text-white flex flex-col shrink-0">
+      <aside className={`fixed inset-y-0 left-0 z-40 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out w-56 bg-slate-900 text-white flex flex-col shrink-0`}>
         {/* Brand */}
         <div className="px-4 py-5 bg-slate-950 border-b border-slate-800">
           <div className="flex items-center gap-2 mb-4">
@@ -291,7 +300,10 @@ const ShipperDashboard = () => {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition text-left ${
                 activeTab === tab.id
                   ? 'bg-orange-600 text-white shadow-md'
@@ -317,22 +329,31 @@ const ShipperDashboard = () => {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden w-full">
         {/* Header */}
-        <header className="bg-white border-b border-slate-100 px-8 py-5 flex items-center justify-between shrink-0">
-          <div>
-            <h1 className="text-xl font-black text-slate-900">
-              {activeTab === 'mine' ? 'Đơn đang giao' :
-               activeTab === 'available' ? 'Đơn chờ nhận' : 'Lịch sử giao hàng'}
-            </h1>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })}
-            </p>
+        <header className="bg-white border-b border-slate-100 px-4 md:px-8 py-4 md:py-5 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition"
+              aria-label="Open menu"
+            >
+              <Menu size={20} />
+            </button>
+            <div>
+              <h1 className="text-lg md:text-xl font-black text-slate-900">
+                {activeTab === 'mine' ? 'Đơn đang giao' :
+                 activeTab === 'available' ? 'Đơn chờ nhận' : 'Lịch sử giao hàng'}
+              </h1>
+              <p className="text-[10px] md:text-xs text-slate-400 mt-0.5">
+                {new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })}
+              </p>
+            </div>
           </div>
           <button
             onClick={fetchAll}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-sm"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             Làm mới

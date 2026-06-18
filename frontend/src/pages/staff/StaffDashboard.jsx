@@ -16,7 +16,8 @@ import {
   Calendar,
   MessageCircle,
   Inbox,
-  FileText
+  FileText,
+  Menu
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import StaffNewsPage from './StaffNewsPage';
@@ -31,6 +32,7 @@ const StaffDashboard = () => {
   
   // Tabs: 'waiting' | 'active' | 'history'
   const [activeTab, setActiveTab] = useState('active');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // Lists
   const [waitingRequests, setWaitingRequests] = useState([]);
@@ -198,6 +200,7 @@ const StaffDashboard = () => {
       
       // Select the newly accepted ticket
       await fetchMessages(requestId);
+      setIsSidebarOpen(false);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Có lỗi xảy ra');
     } finally {
@@ -264,9 +267,17 @@ const StaffDashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-sans text-slate-800">
+    <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-sans text-slate-800 relative">
+      {/* Backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* 1. Left Sidebar: Header & Tabs & List */}
-      <div className="w-80 bg-slate-900 text-white flex flex-col border-r border-slate-800 shrink-0">
+      <div className={`fixed inset-y-0 left-0 z-40 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out w-80 bg-slate-900 text-white flex flex-col border-r border-slate-800 shrink-0`}>
         
         {/* Sidebar Header */}
         <div className="p-5 bg-slate-950 border-b border-slate-800 flex flex-col gap-3">
@@ -304,7 +315,10 @@ const StaffDashboard = () => {
           {/* Module Navigation Menu */}
           <div className="flex flex-col gap-1.5 mt-1 border-t border-slate-800/60 pt-3">
             <button
-              onClick={() => setCurrentModule('crm')}
+              onClick={() => {
+                setCurrentModule('crm');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full py-2 px-3 text-xs font-bold rounded-xl border transition-all flex items-center gap-2 ${
                 currentModule === 'crm'
                   ? 'bg-red-800 border-red-700 text-white shadow-md'
@@ -315,7 +329,10 @@ const StaffDashboard = () => {
               <span>Hỗ trợ khách hàng</span>
             </button>
             <button
-              onClick={() => setCurrentModule('products')}
+              onClick={() => {
+                setCurrentModule('products');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full py-2 px-3 text-xs font-bold rounded-xl border transition-all flex items-center gap-2 ${
                 currentModule === 'products'
                   ? 'bg-red-800 border-red-700 text-white shadow-md'
@@ -326,7 +343,10 @@ const StaffDashboard = () => {
               <span>Quản lý sản phẩm</span>
             </button>
             <button
-              onClick={() => setCurrentModule('news')}
+              onClick={() => {
+                setCurrentModule('news');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full py-2 px-3 text-xs font-bold rounded-xl border transition-all flex items-center gap-2 ${
                 currentModule === 'news'
                   ? 'bg-red-800 border-red-700 text-white shadow-md'
@@ -337,7 +357,10 @@ const StaffDashboard = () => {
               <span>Quản lý tin tức</span>
             </button>
             <button
-              onClick={() => setCurrentModule('orders')}
+              onClick={() => {
+                setCurrentModule('orders');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full py-2 px-3 text-xs font-bold rounded-xl border transition-all flex items-center gap-2 ${
                 currentModule === 'orders'
                   ? 'bg-red-800 border-red-700 text-white shadow-md'
@@ -440,7 +463,10 @@ const StaffDashboard = () => {
                 activeRequests.map(req => (
                   <div 
                     key={req.id} 
-                    onClick={() => fetchMessages(req.id)}
+                    onClick={() => {
+                      fetchMessages(req.id);
+                      setIsSidebarOpen(false);
+                    }}
                     className={`p-4 hover:bg-slate-900/40 transition cursor-pointer flex flex-col gap-2 ${
                       selectedTicket?.id === req.id ? 'bg-slate-800/80 border-l-4 border-red-600' : ''
                     }`}
@@ -476,7 +502,10 @@ const StaffDashboard = () => {
                 historyRequests.map(req => (
                   <div 
                     key={req.id} 
-                    onClick={() => fetchMessages(req.id)}
+                    onClick={() => {
+                      fetchMessages(req.id);
+                      setIsSidebarOpen(false);
+                    }}
                     className={`p-4 hover:bg-slate-900/40 transition cursor-pointer flex flex-col gap-2 ${
                       selectedTicket?.id === req.id ? 'bg-slate-800/80 border-l-4 border-red-600' : ''
                     }`}
@@ -560,8 +589,25 @@ const StaffDashboard = () => {
         )}
       </div>
 
-      {/* 2. Middle/Right Area: Conversational Area */}
       <div className="flex-1 flex flex-col overflow-hidden bg-[#f1f5f9]">
+        {/* Mobile Top Header */}
+        <div className="md:hidden flex items-center justify-between px-6 py-4 bg-slate-900 text-white shrink-0 border-b border-slate-800 z-10">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-300 hover:text-white transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu size={20} />
+            </button>
+            <span className="font-extrabold text-sm tracking-wider text-red-500">SUPPORT CRM</span>
+          </div>
+          <div className="text-xs bg-slate-850 px-2.5 py-1 rounded-lg text-slate-300 font-bold border border-slate-800">
+            {currentModule === 'crm' ? 'Hỗ trợ' :
+             currentModule === 'products' ? 'Sản phẩm' :
+             currentModule === 'news' ? 'Tin tức' : 'Đơn hàng'}
+          </div>
+        </div>
         {currentModule === 'news' ? (
           <StaffNewsPage />
         ) : currentModule === 'products' ? (

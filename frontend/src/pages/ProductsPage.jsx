@@ -356,7 +356,7 @@ const ProductsPage = () => {
                             </div>
 
                             {/* Title & Description */}
-                            <h3 className="font-bold text-slate-800 text-base mb-1.5 group-hover:text-red-600 transition-colors line-clamp-1">
+                            <h3 className="font-bold text-slate-800 text-base mb-1.5 group-hover:text-red-600 transition-colors line-clamp-2 min-h-[48px]">
                               {product.name}
                             </h3>
                             <p className="text-slate-500 text-xs font-light line-clamp-2 mb-4 leading-relaxed">

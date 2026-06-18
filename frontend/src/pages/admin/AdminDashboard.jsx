@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ShoppingBag, Users, LogOut, RefreshCw,
   CheckCircle, XCircle, Truck, Package, ChevronRight,
   Search, Eye, UserCheck, AlertTriangle, TrendingUp,
-  Clock, Star, BarChart3, ExternalLink
+  Clock, Star, BarChart3, ExternalLink, Menu
 } from 'lucide-react';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -118,12 +118,12 @@ const OrderDetailDrawer = ({ order, shippers, onClose, onRefresh }) => {
   const canCancel = !['DELIVERED', 'CANCELLED'].includes(order.orderStatus);
 
   return (
-    <div className="fixed inset-0 z-50 flex">
+    <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
-      <div className="flex-1 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Drawer */}
-      <div className="w-full max-w-2xl bg-white shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative w-full max-w-2xl bg-white shadow-2xl flex flex-col h-full overflow-hidden z-10">
         {/* Header */}
         <div className="bg-slate-900 px-6 py-5 flex items-center justify-between shrink-0">
           <div>
@@ -503,13 +503,21 @@ const OrdersTab = ({ shippers }) => {
 const OverviewTab = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
+  const loadStats = () => {
+    setLoading(true);
+    setError(false);
     api.get('/orders/stats')
-      .then(({ data }) => setStats(data.data))
-      .catch(() => toast.error('Không thể tải thống kê'))
+      .then(({ data }) => {
+        if (data?.data) setStats(data.data);
+        else setError(true);
+      })
+      .catch(() => { toast.error('Không thể tải thống kê'); setError(true); })
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { loadStats(); }, []);
 
   if (loading) return (
     <div className="flex items-center justify-center py-24">
@@ -517,18 +525,37 @@ const OverviewTab = () => {
     </div>
   );
 
-  if (!stats) return null;
+  if (error || !stats) return (
+    <div className="flex flex-col items-center justify-center py-24 gap-4">
+      <AlertTriangle size={36} className="text-amber-400" />
+      <p className="text-slate-500 text-sm">Không thể tải dữ liệu tổng quan</p>
+      <button onClick={loadStats} className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl transition">
+        <RefreshCw size={14} /> Thử lại
+      </button>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Header row */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="font-black text-slate-800 text-lg">Tổng quan hệ thống</h2>
+          <p className="text-xs text-slate-400 mt-0.5">Số liệu thời gian thực từ hệ thống</p>
+        </div>
+        <button onClick={loadStats} className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition text-xs font-semibold bg-white">
+          <RefreshCw size={13} /> Làm mới
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard label="Tổng đơn" value={stats.total} icon={<ShoppingBag size={20} className="text-slate-600" />} color="bg-slate-50 border-slate-200 text-slate-800" sub={`Hôm nay: ${stats.todayOrders}`} />
         <StatCard label="Doanh thu" value={fmt(stats.totalRevenue)} icon={<TrendingUp size={20} className="text-emerald-600" />} color="bg-emerald-50 border-emerald-200 text-emerald-800" sub="Đơn đã thanh toán" />
         <StatCard label="Chờ xác nhận" value={stats.pendingConfirmation} icon={<Clock size={20} className="text-amber-600" />} color="bg-amber-50 border-amber-200 text-amber-800" sub="Cần xử lý ngay" />
         <StatCard label="Đã hủy" value={stats.cancelled} icon={<XCircle size={20} className="text-red-600" />} color="bg-red-50 border-red-200 text-red-800" />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         {[
           { label: 'Đã xác nhận',   value: stats.confirmed,          color: 'bg-blue-50 border-blue-200 text-blue-800',     icon: <CheckCircle size={18} className="text-blue-600" /> },
           { label: 'Đang chuẩn bị', value: stats.preparing,          color: 'bg-violet-50 border-violet-200 text-violet-800', icon: <Package size={18} className="text-violet-600" /> },
@@ -543,12 +570,11 @@ const OverviewTab = () => {
   );
 };
 
-// ─── Main AdminDashboard ──────────────────────────────────────────────────────
-
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [shippers, setShippers] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     api.get('/orders/shippers')
@@ -564,9 +590,17 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
+    <div className="flex h-screen bg-slate-50 font-sans overflow-hidden relative">
+      {/* Backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-60 bg-slate-950 text-white flex flex-col shrink-0">
+      <aside className={`fixed inset-y-0 left-0 z-40 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out w-60 bg-slate-950 text-white flex flex-col shrink-0`}>
         {/* Brand */}
         <div className="px-5 py-6 border-b border-slate-800">
           <div className="flex items-center gap-2.5 mb-5">
@@ -594,7 +628,10 @@ const AdminDashboard = () => {
           {navItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => {
+                setActiveTab(item.id);
+                setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition text-left ${
                 activeTab === item.id
                   ? 'bg-red-700 text-white shadow-md'
@@ -615,22 +652,33 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden w-full">
         {/* Header */}
-        <header className="bg-white border-b border-slate-100 px-8 py-5 shrink-0">
-          <h1 className="text-xl font-black text-slate-900">
-            {activeTab === 'overview'  ? 'Tổng quan hệ thống' :
-             activeTab === 'orders'    ? 'Quản lý đơn hàng' :
-             activeTab === 'shippers'  ? 'Danh sách Shipper' :
-             'Quản lý nhân viên'}
-          </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            {new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
+        <header className="bg-white border-b border-slate-100 px-4 md:px-8 py-4 md:py-5 shrink-0 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition"
+              aria-label="Open menu"
+            >
+              <Menu size={20} />
+            </button>
+            <div>
+              <h1 className="text-lg md:text-xl font-black text-slate-900">
+                {activeTab === 'overview'  ? 'Tổng quan hệ thống' :
+                 activeTab === 'orders'    ? 'Quản lý đơn hàng' :
+                 activeTab === 'shippers'  ? 'Danh sách Shipper' :
+                 'Quản lý nhân viên'}
+              </h1>
+              <p className="text-[10px] md:text-xs text-slate-400 mt-0.5">
+                {new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </p>
+            </div>
+          </div>
         </header>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {activeTab === 'overview'  && <OverviewTab />}
           {activeTab === 'orders'    && <OrdersTab shippers={shippers} />}
           {activeTab === 'shippers'  && <ShippersTab shippers={shippers} />}
