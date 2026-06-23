@@ -64,7 +64,7 @@ const NewsDetailPage = () => {
       const { likes, dislikes, userReaction } = res.data.data;
       setArticle((prev) => ({ ...prev, likes, dislikes }));
       setMyReaction(userReaction);
-      
+
       if (res.data.data.action === 'added') {
         toast.success(type === 'LIKE' ? 'Đã thích bài viết!' : 'Đã không thích bài viết!');
       } else if (res.data.data.action === 'updated') {
@@ -183,7 +183,7 @@ const NewsDetailPage = () => {
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
-          
+
           {/* Header Info Overlaid on banner bottom for premium look */}
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 z-10 bg-gradient-to-t from-slate-950 to-transparent">
             <span className="text-red-500 font-extrabold tracking-widest text-[11px] uppercase bg-red-950/70 border border-red-900/60 px-3.5 py-1 rounded-full mb-3 inline-block">
@@ -234,11 +234,10 @@ const NewsDetailPage = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => handleReact('LIKE')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold border transition-all ${
-                myReaction === 'LIKE'
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold border transition-all ${myReaction === 'LIKE'
                   ? 'bg-red-800 border-red-700 text-white shadow-lg shadow-red-950/40 scale-105'
                   : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-red-900/40'
-              }`}
+                }`}
             >
               <ThumbsUp className="w-4.5 h-4.5" />
               <span>Thích ({article.likes || 0})</span>
@@ -246,11 +245,10 @@ const NewsDetailPage = () => {
 
             <button
               onClick={() => handleReact('DISLIKE')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold border transition-all ${
-                myReaction === 'DISLIKE'
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold border transition-all ${myReaction === 'DISLIKE'
                   ? 'bg-slate-800 border-slate-700 text-white scale-105'
                   : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-red-900/40'
-              }`}
+                }`}
             >
               <ThumbsDown className="w-4.5 h-4.5" />
               <span>Không thích ({article.dislikes || 0})</span>
@@ -273,9 +271,15 @@ const NewsDetailPage = () => {
               <form onSubmit={handleAddComment} className="flex gap-4">
                 {/* Avatar */}
                 <div className="w-10 h-10 rounded-full bg-red-800 flex items-center justify-center font-bold text-sm text-white shrink-0">
-                  {user.fullName?.[0] || 'U'}
+                  <div className="w-10 h-10 rounded-full bg-slate-850 border border-slate-800 flex items-center justify-center font-bold text-sm text-slate-300 shrink-0 overflow-hidden">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      user.fullName?.[0] || 'U'
+                    )}
+                  </div>
                 </div>
-                
+
                 {/* Inputs */}
                 <div className="flex-1 flex flex-col gap-3">
                   <textarea
