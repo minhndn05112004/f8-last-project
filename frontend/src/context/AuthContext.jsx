@@ -114,8 +114,12 @@ export const AuthProvider = ({ children }) => {
     if (socket) socket.close();
   };
 
+  const updateUser = (updatedFields) => {
+    setUser((prev) => ({ ...prev, ...updatedFields }));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, socket, connected }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, socket, connected, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
