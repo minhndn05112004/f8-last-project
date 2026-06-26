@@ -2,6 +2,7 @@ const { z } = require('zod');
 const bcrypt = require('bcryptjs');
 const prisma = require('../config/prisma');
 const { successResponse, errorResponse } = require('../utils/response');
+const cloudinary = require('../config/cloudinary');
 
 const employeeSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters').regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
@@ -85,7 +86,33 @@ const getEmployees = async (req, res, next) => {
   }
 };
 
+const checkCloudinary = async (req, res, next) => {
+  try {
+    const cfg = cloudinary.config();
+    const secret = process.env.CLOUDINARY_API_SECRET || '';
+    // Attempt a real authenticated API call — fails immediately if secret is wrong
+    await cloudinary.api.ping();
+    return successResponse(res, {
+      cloud_name: cfg.cloud_name,
+      api_key: cfg.api_key,
+      api_secret_length: secret.length,
+      api_secret_prefix: secret.substring(0, 8),
+      status: 'credentials_valid',
+    }, 'Cloudinary credentials are valid ✅');
+  } catch (err) {
+    const secret = process.env.CLOUDINARY_API_SECRET || '';
+    return res.status(500).json({
+      success: false,
+      message: 'Cloudinary credential check FAILED ❌',
+      error: err.message,
+      api_secret_length: secret.length,
+      api_secret_prefix: secret.substring(0, 8),
+    });
+  }
+};
+
 module.exports = {
   createEmployee,
   getEmployees,
+  checkCloudinary,
 };
