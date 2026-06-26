@@ -86,7 +86,7 @@ app.get('/', (_req, res) => {
     ],
   });
 });
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 
 app.use((_req, res) => {
