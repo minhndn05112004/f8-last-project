@@ -15,7 +15,13 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL,
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://f8-last-project.vercel.app',
+      'https://www.ngodinhnhatminh.name.vn',
+      'https://ngodinhnhatminh.name.vn',
+    ],
     methods: ['GET', 'POST'],
     credentials: true,
   },

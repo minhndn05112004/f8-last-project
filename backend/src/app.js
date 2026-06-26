@@ -29,7 +29,8 @@ app.use(cors({
       'http://localhost:5173',
       'http://localhost:3000',
       'https://f8-last-project.vercel.app',
-      'https://www.ngodinhnhatminh.name.vn'
+      'https://www.ngodinhnhatminh.name.vn',
+      'https://ngodinhnhatminh.name.vn'
     ];
     // Cho phép tất cả *.vercel.app subdomain của project
     const vercelPreview = /^https:\/\/f8-last-project.*\.vercel\.app$/;

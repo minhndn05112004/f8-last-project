@@ -13,7 +13,6 @@ const storage = new CloudinaryStorage({
       if (req.baseUrl.includes('news')) folderName = 'news';
       return `meatshop/${folderName}`;
     },
-    allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'webp'],
   },
 });
 
