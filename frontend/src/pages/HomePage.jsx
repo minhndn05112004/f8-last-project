@@ -9,7 +9,7 @@ const Hero = () => (
     {/* Background Image with Overlay */}
     <div className="absolute inset-0 z-0">
       <img
-        src="./public/thit.png"
+        src="/thit.png"
         alt="Premium Meat"
         className="w-full h-full object-cover opacity-60"
       />
