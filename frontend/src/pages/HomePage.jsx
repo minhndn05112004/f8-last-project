@@ -9,7 +9,7 @@ const Hero = () => (
     {/* Background Image with Overlay */}
     <div className="absolute inset-0 z-0">
       <img
-        src="https://www.wildcountrymeats.com/wp-content/uploads/2025/10/shop-meat-cuts.jpg"
+        src="./public/thit.png"
         alt="Premium Meat"
         className="w-full h-full object-cover opacity-60"
       />
