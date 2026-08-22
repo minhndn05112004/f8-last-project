@@ -26,7 +26,7 @@ const ACCOUNT_NAME      = process.env.SEPAY_ACCOUNT_NAME     || 'NGO DINH NHAT M
  * @returns {{ qrUrl, transferContent, accountNumber, accountName, bankCode, amount }}
  */
 const generateQRCodeUrl = (orderCode, amount) => {
-  const transferContent = `PAY_ORDER_${orderCode}`;
+  const transferContent = `SEVQR PAY_ORDER_${orderCode}`;
   const roundedAmount   = Math.round(amount);
 
   const params = new URLSearchParams({

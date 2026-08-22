@@ -52,7 +52,7 @@ function webhookPayload(orderCode, txnId, amount) {
   return {
     id: txnId,
     amountIn: amount,
-    transactionContent: `PAY_ORDER_${orderCode}`,
+    transactionContent: `SEVQR PAY_ORDER_${orderCode}`,
     gateway: 'MB Bank',
     referenceNumber: `REF${txnId}`,
   };
@@ -106,7 +106,7 @@ async function testSuccessWebhook(orderCode, amount) {
   const txnId = `TXN_${Date.now()}`;
   try {
     const res = await axios.post(`${BASE}/payment/sepay/webhook`,
-      { id: txnId, amountIn: amount, transactionContent: `PAY_ORDER_${orderCode}`, gateway: 'MB Bank', referenceNumber: txnId },
+      { id: txnId, amountIn: amount, transactionContent: `SEVQR PAY_ORDER_${orderCode}`, gateway: 'MB Bank', referenceNumber: txnId },
       { headers: { Authorization: `Apikey ${APIKEY}` } }
     );
     if (res.status === 200 && res.data.success) {
@@ -137,7 +137,7 @@ async function testDuplicate(orderCode, amount, txnId) {
   console.log('\n[TEST 5] Duplicate webhook → idempotent');
   try {
     const res = await axios.post(`${BASE}/payment/sepay/webhook`,
-      { id: txnId, amountIn: amount, transactionContent: `PAY_ORDER_${orderCode}`, gateway: 'MB Bank' },
+      { id: txnId, amountIn: amount, transactionContent: `SEVQR PAY_ORDER_${orderCode}`, gateway: 'MB Bank' },
       { headers: { Authorization: `Apikey ${APIKEY}` } }
     );
     if (res.status === 200 && res.data.success) {
