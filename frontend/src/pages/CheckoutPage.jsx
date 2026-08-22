@@ -54,12 +54,13 @@ const CheckoutPage = () => {
       const { data } = await axios.post('/orders', formData);
       
       if (data.success) {
-        toast.success('Đặt hàng thành công!');
         await fetchCart();
 
         if (formData.paymentMethod === 'BANK_TRANSFER') {
+          toast.success('Đã khởi tạo đơn hàng. Vui lòng quét mã QR để thanh toán!');
           navigate(`/payment/${data.data.orderCode}`);
         } else {
+          toast.success('Đặt hàng thành công!');
           navigate(`/order-success/${data.data.orderCode}`);
         }
       }
@@ -205,11 +206,11 @@ const CheckoutPage = () => {
                       <div className="mt-3 p-3 bg-white/85 rounded-xl border border-red-100/50 text-xs text-slate-700 space-y-1">
                         <div className="flex justify-between">
                           <span className="text-slate-500">Ngân hàng:</span>
-                          <span className="font-semibold text-slate-800">MB Bank</span>
+                          <span className="font-semibold text-slate-800">VietinBank</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">Số tài khoản:</span>
-                          <span className="font-bold text-red-600 tracking-wider">0366585487</span>
+                          <span className="font-bold text-red-600 tracking-wider">109887797148</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">Chủ tài khoản:</span>

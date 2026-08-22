@@ -275,7 +275,7 @@ const PaymentPage = () => {
                 <div className="flex justify-between items-center pb-3 border-b border-slate-100">
                   <span className="text-sm text-slate-500">Ngân hàng</span>
                   <span className="font-bold text-slate-800">
-                    {paymentData.bankCode === 'VCB' ? 'Vietcombank (VCB)' : paymentData.bankCode === 'MB' ? 'MB Bank (MB)' : paymentData.bankCode}
+                    {paymentData.bankCode === 'VCB' ? 'Vietcombank (VCB)' : paymentData.bankCode === 'MB' ? 'MB Bank (MB)' : paymentData.bankCode === 'ICB' || paymentData.bankCode === 'VietinBank' ? 'VietinBank (ICB)' : paymentData.bankCode}
                   </span>
                 </div>
 

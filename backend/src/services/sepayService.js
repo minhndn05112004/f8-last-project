@@ -11,8 +11,8 @@
 const axios = require('axios');
 
 const SEPAY_API_KEY     = process.env.SEPAY_API_KEY;
-const BANK_CODE         = process.env.SEPAY_BANK_CODE        || 'MB';
-const ACCOUNT_NUMBER    = process.env.SEPAY_ACCOUNT_NUMBER   || '0366585487';
+const BANK_CODE         = process.env.SEPAY_BANK_CODE        || 'ICB';
+const ACCOUNT_NUMBER    = process.env.SEPAY_ACCOUNT_NUMBER   || '109887797148';
 const ACCOUNT_NAME      = process.env.SEPAY_ACCOUNT_NAME     || 'NGO DINH NHAT MINH';
 
 // ─── QR Generation ────────────────────────────────────────────────────────────
